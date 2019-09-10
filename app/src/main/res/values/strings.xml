@@ -6,4 +6,7 @@
     </string>
     <string name="hetprivacybeleid_hyperlink">http://www.rsr.nl/index.php?page=privacy-wetgeving</string>
     <string name="title_activity_maps">RSR Pechhulp</string>
+    <string name="toolbar_back_button_maps">Back button</string>
+    <string name="map_button_text">Bel RSR nu</string>
+    <string name="main_button_text">RSR Pechhulp</string>
 </resources>

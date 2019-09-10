@@ -5,39 +5,38 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity {
+
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme); // Once the activity starts, set the default theme so the Splash Screen to be replaced
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        toolbarOptions();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_screen_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.info_button:
-                showAlertDialogButtonClicked();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+    private void toolbarOptions() {
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.inflateMenu(R.menu.main_screen_menu);
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                if(menuItem.getItemId()==R.id.info_button) {
+                    showAlertDialogButtonClicked();
+                }
+                return false;
+            }
+        });
     }
 
     public void showAlertDialogButtonClicked() {
