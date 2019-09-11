@@ -12,7 +12,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,7 +31,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.zaf.rsrpechhulp.Utils.CustomInfoWindowAdapter;
 
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     Location mLastLocation;
     LocationRequest mLocationRequest;
     FusedLocationProviderClient mFusedLocationClient;
-
+    LocationCallback mLocationCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +51,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_maps);
         toolbarOptions();
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        // Google’s LocationServices API is the one which is actually used to access device location.
+        // To access these services the app needs to connect to Google Play Services.
+        // With FusedLocationProviderApi it was our responsibility to initiate and manage the connection.
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -176,34 +178,52 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Looper.myLooper());
             mMap.setMyLocationEnabled(false);
         }
+        mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(this));
     }
 
-    LocationCallback mLocationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            List<Location> locationList = locationResult.getLocations();
-            if (locationList.size() > 0) {
-                //The last location in the list is the newest
-                Location location = locationList.get(locationList.size() - 1);
-                Log.i("MapsActivity", "Location: " + location.getLatitude() + " "
-                        + location.getLongitude());
-                mLastLocation = location;
-                if (mCurrLocationMarker != null) {
-                    mCurrLocationMarker.remove();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        locationCallback();
+    }
+
+    private void locationCallback() {
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                // Get a list with locations
+                List<Location> locationList = locationResult.getLocations();
+                if (locationList.size() > 0) {
+                    //The last location in the list is the newest
+                    Location location = locationList.get(locationList.size() - 1);
+                    Log.i("MapsActivity", "Location: " + location.getLatitude() + " "
+                            + location.getLongitude());
+                    mLastLocation = location;
+                    // Remove the old marker from the map to add the new
+                    if (mCurrLocationMarker != null) {
+                        mCurrLocationMarker.remove();
+                    }
+
+                    // Set the coordinates to a new LatLng object
+                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    // Set custom location marker
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(latLng);
+                    markerOptions.anchor(0.5f, 1.0f);
+                    markerOptions.infoWindowAnchor(0.5f, -0.2f);
+//                    markerOptions.title("Current Position");
+//                    markerOptions.snippet("Onthoud deze locatie voor het telefongesprek");
+                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_marker));
+                    mCurrLocationMarker = mMap.addMarker(markerOptions);
+                    mCurrLocationMarker.setTitle("Current Position");
+                    mCurrLocationMarker.showInfoWindow();
+
+                    //move map camera
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
                 }
-
-                // Set the coordinates to a new LatLng object
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                // Set custom location marker
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(latLng);
-                markerOptions.title("Current Position");
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_marker));
-                mCurrLocationMarker = mMap.addMarker(markerOptions);
-
-                //move map camera
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
             }
-        }
-    };
+        };
+    }
+
+
 }

@@ -1,4 +1,4 @@
-package com.zaf.rsrpechhulp;
+package com.zaf.rsrpechhulp.Utils;
 
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -7,6 +7,8 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.TextView;
+
+import com.zaf.rsrpechhulp.R;
 
 public class Utils {
     // To highlight the hyperlink in the dialog
