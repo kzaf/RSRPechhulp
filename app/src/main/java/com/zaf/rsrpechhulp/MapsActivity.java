@@ -76,8 +76,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 mLocationCallback, Looper.myLooper());
                         mMap.setMyLocationEnabled(true);
                     }
-
                 } else {
+                    // If permission denied close the Map Activity
                     finish();
                 }
                 break;
@@ -93,7 +93,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                // Show an explanation to the user *asynchronously* -- don't block
+                // Shows an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
                 new AlertDialog.Builder(this)
@@ -137,7 +137,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onPause() {
         super.onPause();
-        //stop location updates when Activity is no longer active
+        // Stop location updates when Activity is no longer active
         if (mFusedLocationClient != null) {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         }
@@ -149,20 +149,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(2000); // two seconds interval
+        // Set the interval in which you want to get locations (two seconds interval)
+        mLocationRequest.setInterval(2000);
+        // If a location is available sooner you can get it
+        // (i.e. another app is using the location services).
         mLocationRequest.setFastestInterval(2000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        // Application wants high accuracy location,
+        // thus it should create a location request with PRIORITY_HIGH_ACCURACY
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
+        // Check the android version to be API V23 (Marshmallow) and on
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
-                //Location Permission already granted
+                // Location Permission already granted
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
                         Looper.myLooper());
                 mMap.setMyLocationEnabled(false);
             } else {
-                //Request Location Permission
+                // Request Location Permission
                 checkLocationPermission();
             }
         }
@@ -187,8 +192,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mCurrLocationMarker.remove();
                 }
 
-                //Place current location marker
+                // Set the coordinates to a new LatLng object
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                // Set custom location marker
                 MarkerOptions markerOptions = new MarkerOptions();
                 markerOptions.position(latLng);
                 markerOptions.title("Current Position");

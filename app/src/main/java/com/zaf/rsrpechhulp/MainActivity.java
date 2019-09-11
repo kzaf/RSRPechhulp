@@ -18,7 +18,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.AppTheme); // Once the activity starts, set the default theme so the Splash Screen to be replaced
+        // When the activity starts, set the default theme so the Splash Screen to be replaced
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
+                // When the info button is clicked the 'terms&conditions' Dialog pops up
                 if(menuItem.getItemId()==R.id.info_button) {
                     showAlertDialogButtonClicked();
                 }
@@ -40,39 +42,51 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showAlertDialogButtonClicked() {
-        // create an alert builder
+        // Create an alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // Disable the click outside of the dialog
         builder.setCancelable(false);
-        // set the custom layout
+        // Set the custom layout
         final View customLayout = getLayoutInflater().inflate(R.layout.dialog_layout, null);
-        TextView tv = customLayout.findViewById(R.id.dialog_text);
-        tv.setText(getResources().getString(R.string.dialog_text_text));
-        if (tv.getText().toString().contains("hetprivacybeleid")) {
-            Utils.setClickableHighLightedText(tv, "hetprivacybeleid", new View.OnClickListener() {
+        TextView dialogTextTextView = customLayout.findViewById(R.id.dialog_text);
+        dialogTextTextView.setText(getResources().getString(R.string.dialog_text_text));
+        if (dialogTextTextView.getText().toString().contains(getResources().
+                getString(R.string.privacy_policy_dutch))) {
+            Utils.setClickableHighLightedText(dialogTextTextView, getResources().
+                            getString(R.string.privacy_policy_dutch)
+                    , new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // When the hyperlink clicked, open the website in a browser
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_VIEW);
+                    // Selected CATEGORY_BROWSABLE so as to open directly on a browser
                     intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                    intent.setData(Uri.parse(getResources().getString(R.string.hetprivacybeleid_hyperlink)));
+                    // Pass the url to the intent
+                    intent.setData(Uri.parse(getResources().
+                            getString(R.string.hetprivacybeleid_hyperlink)));
                     startActivity(intent);
                 }
             });
         }
         builder.setView(customLayout);
-        // add a button
-        builder.setPositiveButton("BEVESTIG", new DialogInterface.OnClickListener() {
+        // Add a button
+        builder.setPositiveButton(getResources().getString(R.string.confirm_dutch),
+                new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                // Dismiss the dialog
                 dialog.cancel();
             }
         });
-        // create and show the alert dialog
+        // Create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
+    // This method is called via View when the main button is clicked
     public void startMapsActivity(View view){
+        // Starts the Map Activity
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }

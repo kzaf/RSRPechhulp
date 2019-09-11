@@ -9,4 +9,6 @@
     <string name="toolbar_back_button_maps">Back button</string>
     <string name="map_button_text">Bel RSR nu</string>
     <string name="main_button_text">RSR Pechhulp</string>
+    <string name="privacy_policy_dutch">hetprivacybeleid</string>
+    <string name="confirm_dutch">BEVESTIG</string>
 </resources>
