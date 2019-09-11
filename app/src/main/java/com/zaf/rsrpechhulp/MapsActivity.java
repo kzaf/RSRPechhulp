@@ -158,7 +158,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     == PackageManager.PERMISSION_GRANTED) {
                 //Location Permission already granted
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-                mMap.setMyLocationEnabled(true);
+                mMap.setMyLocationEnabled(false);
             } else {
                 //Request Location Permission
                 checkLocationPermission();
@@ -166,7 +166,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         else {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-            mMap.setMyLocationEnabled(true);
+            mMap.setMyLocationEnabled(false);
         }
     }
 
@@ -188,7 +188,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 MarkerOptions markerOptions = new MarkerOptions();
                 markerOptions.position(latLng);
                 markerOptions.title("Current Position");
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_marker));
                 mCurrLocationMarker = mMap.addMarker(markerOptions);
 
                 //move map camera
