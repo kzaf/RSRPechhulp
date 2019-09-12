@@ -1,8 +1,6 @@
 package com.zaf.rsrpechhulp;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -15,7 +13,6 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -31,12 +28,17 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.zaf.rsrpechhulp.Utils.AddressObtainTask;
 import com.zaf.rsrpechhulp.Utils.CustomInfoWindowAdapter;
+import com.zaf.rsrpechhulp.Utils.Utils;
 
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, AddressObtainTask.Callback {
 
+    public static final LatLng AMST_LAT_LNG = new LatLng(52.370216, 4.895168);
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private GoogleMap mMap;
     ImageView back;
     Marker mCurrLocationMarker;
@@ -44,6 +46,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     LocationRequest mLocationRequest;
     FusedLocationProviderClient mFusedLocationClient;
     LocationCallback mLocationCallback;
+    ReentrantLock addressObtainedLock;
+    LatLng latLng;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +63,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        addressObtainedLock = new ReentrantLock();
     }
 
     @Override
@@ -86,43 +92,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    public void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Shows an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(this)
-                        .setTitle("Location Permission Needed")
-                        .setMessage("This app needs the Location permission, " +
-                                "please accept to use location functionality")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(MapsActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION );
-                            }
-                        })
-                        .create()
-                        .show();
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION );
-            }
-        }
-    }
 
     private void toolbarOptions() {
         back = findViewById(R.id.back_button);
@@ -149,7 +118,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
         mLocationRequest = new LocationRequest();
         // Set the interval in which you want to get locations (two seconds interval)
         mLocationRequest.setInterval(2000);
@@ -170,7 +138,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMap.setMyLocationEnabled(false);
             } else {
                 // Request Location Permission
-                checkLocationPermission();
+                Utils.checkLocationPermission(MapsActivity.this);
             }
         }
         else {
@@ -185,6 +153,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onResume() {
         super.onResume();
         locationCallback();
+    }
+
+    private MarkerOptions createInitMarkerOptions() {
+        final MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_marker));
+        markerOptions.anchor(0.5f, 1.0f);
+        markerOptions.position(AMST_LAT_LNG);
+        markerOptions.infoWindowAnchor(0.5f, -0.2f);
+        return markerOptions;
     }
 
     private void locationCallback() {
@@ -205,25 +182,42 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
 
                     // Set the coordinates to a new LatLng object
-                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    if(mMap == null)
+                        return;
+
+                    if(mCurrLocationMarker == null) {
+                        mCurrLocationMarker = mMap.addMarker(createInitMarkerOptions());
+                        mCurrLocationMarker.setTitle(getResources().getString(R.string.popup_address_obtaining));
+                        mCurrLocationMarker.showInfoWindow();
+                    }
+
                     // Set custom location marker
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(latLng);
                     markerOptions.anchor(0.5f, 1.0f);
                     markerOptions.infoWindowAnchor(0.5f, -0.2f);
-//                    markerOptions.title("Current Position");
-//                    markerOptions.snippet("Onthoud deze locatie voor het telefongesprek");
                     markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_marker));
                     mCurrLocationMarker = mMap.addMarker(markerOptions);
-                    mCurrLocationMarker.setTitle("Current Position");
                     mCurrLocationMarker.showInfoWindow();
 
                     //move map camera
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+
+                    new AddressObtainTask(MapsActivity.this, MapsActivity.this).execute(latLng);
                 }
             }
         };
     }
 
-
+    // Called when bounded AddressObtainTask obtains address
+    @Override
+    public void onAddressObtained(@NonNull String address) {
+        addressObtainedLock.lock();
+        if(mCurrLocationMarker != null) {
+            mCurrLocationMarker.setTitle(address);
+            mCurrLocationMarker.showInfoWindow();
+        }
+        addressObtainedLock.unlock();
+    }
 }

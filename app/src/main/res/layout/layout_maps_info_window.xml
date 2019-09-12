@@ -9,12 +9,13 @@
         android:layout_width="@dimen/width_popup"
         android:layout_height="wrap_content">
         <TextView
+            android:id="@+id/txv_maps_info_window_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:gravity="center_horizontal"
             android:layout_gravity="center_horizontal"
-            android:text="@string/popup_address_title"
+            android:text="@string/popup_address_title_dutch"
             style="@style/TextAppearancePopupTitle"/>
         <TextView
             android:id="@+id/txv_maps_info_window"
@@ -26,12 +27,13 @@
             android:text="@string/popup_address_obtaining"
             style="@style/TextAppearancePopup"/>
         <TextView
+            android:id="@+id/txv_maps_info_window_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/margin_vertical_popup_txv"
-            android:text="@string/popup_address_info"
+            android:text="@string/popup_address_info_dutch"
             style="@style/TextAppearancePopup"/>
     </LinearLayout>
 </RelativeLayout>

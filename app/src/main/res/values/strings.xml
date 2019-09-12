@@ -12,7 +12,7 @@
     <string name="main_button_text">RSR Pechhulp</string>
     <string name="privacy_policy_dutch">hetprivacybeleid</string>
     <string name="confirm_dutch">BEVESTIG</string>
-    <string name="popup_address_title">Uw Locatie:</string>
-    <string name="popup_address_obtaining">Verkrijgen adres&#8230;</string>
-    <string name="popup_address_info">Onthoud deze locatie voor het telefoongesprek.</string>
+    <string name="popup_address_title_dutch">Uw Locatie:</string>
+    <string name="popup_address_obtaining">Current Address&#8230;</string>
+    <string name="popup_address_info_dutch">Onthoud deze locatie voor het telefoongesprek.</string>
 </resources>
