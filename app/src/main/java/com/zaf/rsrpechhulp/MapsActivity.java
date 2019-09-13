@@ -1,16 +1,23 @@
 package com.zaf.rsrpechhulp;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -114,30 +121,66 @@ public class MapsActivity extends AppCompatActivity
         if (mFusedLocationClient != null) {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         }
+        // Unregister the Broadcast Receivers when the app is on background
+        this.unregisterReceiver(gpsSwitchStateReceiver);
+        this.unregisterReceiver(networkSwitchStateReceiver);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, this);
+        // Check connectivity status on Activity start
+        lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
         locationCallback();
+
+        // Register the GPS receiver
+        IntentFilter filterGps = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
+        filterGps.addAction(Intent.ACTION_PROVIDER_CHANGED);
+        this.registerReceiver(gpsSwitchStateReceiver, filterGps);
+
+        // Register the Network receiver
+        IntentFilter filterNetwork = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        filterNetwork.addAction(Intent.ACTION_PROVIDER_CHANGED);
+        this.registerReceiver(networkSwitchStateReceiver, filterNetwork);
     }
 
-//    private void checkGPSAndInternetAvailability() {
-//        if(!Utils.checkGPSEnabled(this))
-//            (lastAlertDialog = Utils.alertGpsDisabled(this)).show();
-//        else if(!Utils.checkInternetConnectivity(this)){
-//            (lastAlertDialog = Utils.alertNoInternet(this)).show();
-//        }
-//        else {
-//            if(isActiveAlertDialog())
-//                lastAlertDialog.hide();
-//        }
-//    }
-//
-//    private boolean isActiveAlertDialog() {
-//        return lastAlertDialog != null && lastAlertDialog.isShowing();
-//    }
+    // Broadcast receiver to check the GPS state
+    private BroadcastReceiver gpsSwitchStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (LocationManager.PROVIDERS_CHANGED_ACTION.equals(intent.getAction())) {
+                LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+                boolean isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+                if (isGpsEnabled || isNetworkEnabled) {
+                    lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
+                } else {
+                    lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
+                }
+            }
+        }
+    };
+
+    // Broadcast receiver to check the Network state
+    private BroadcastReceiver networkSwitchStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())){
+                ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                android.net.NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                android.net.NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+                if (wifi.isAvailable() || mobile.isAvailable()) {
+                    lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
+                } else {
+                    lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
+                }
+            }
+        }
+    };
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -178,8 +221,6 @@ public class MapsActivity extends AppCompatActivity
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
-                // Check GPS and network on every refresh
-                lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
                 // Get a list with locations
                 List<Location> locationList = locationResult.getLocations();
                 if (locationList.size() > 0) {
