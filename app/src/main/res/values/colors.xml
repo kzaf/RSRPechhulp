@@ -5,4 +5,6 @@
     <color name="colorAccent">#0F78A4</color>
 
     <color name="colorSplashBackground">#FFFFFF</color>
+    <color name="colorBelNuFrame">#E6949D18</color>
+    <color name="colorBelNuCloseButton">#E61B6C86</color>
 </resources>

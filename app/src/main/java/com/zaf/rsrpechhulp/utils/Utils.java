@@ -22,10 +22,10 @@ import android.widget.TextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.zaf.rsrpechhulp.MapsActivity;
+import com.zaf.rsrpechhulp.activities.MapsActivity;
 import com.zaf.rsrpechhulp.R;
 
-import static com.zaf.rsrpechhulp.MapsActivity.MY_PERMISSIONS_REQUEST_LOCATION;
+import static com.zaf.rsrpechhulp.activities.MapsActivity.MY_PERMISSIONS_REQUEST_LOCATION;
 
 public class Utils {
     // To highlight the hyperlink in the dialog

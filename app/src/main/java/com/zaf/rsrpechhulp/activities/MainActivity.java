@@ -1,4 +1,4 @@
-package com.zaf.rsrpechhulp;
+package com.zaf.rsrpechhulp.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.zaf.rsrpechhulp.R;
 import com.zaf.rsrpechhulp.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem) {
                 // When the info button is clicked the 'terms&conditions' Dialog pops up
-                if(menuItem.getItemId()==R.id.info_button) {
+                if(menuItem.getItemId()== R.id.info_button) {
                     showAlertDialogButtonClicked();
                 }
                 return false;

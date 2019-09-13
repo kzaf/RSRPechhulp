@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 
-import com.zaf.rsrpechhulp.MapsActivity;
+import com.zaf.rsrpechhulp.activities.MapsActivity;
 import com.zaf.rsrpechhulp.utils.Utils;
 
 public class NetworkBroadcastReceiver extends BroadcastReceiver {
@@ -19,14 +19,19 @@ public class NetworkBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())){
-            ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            android.net.NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            android.net.NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            ConnectivityManager connMgr =
+                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            android.net.NetworkInfo wifi =
+                    connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            android.net.NetworkInfo mobile =
+                    connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
             if (wifi.isAvailable() || mobile.isAvailable()) {
-                mapsActivity.lastAlertDialog = Utils.checkGPSAndInternetAvailability(mapsActivity.lastAlertDialog, mapsActivity);
+                mapsActivity.lastAlertDialog = Utils.checkGPSAndInternetAvailability
+                        (mapsActivity.lastAlertDialog, mapsActivity);
             } else {
-                mapsActivity.lastAlertDialog = Utils.checkGPSAndInternetAvailability(mapsActivity.lastAlertDialog, mapsActivity);
+                mapsActivity.lastAlertDialog = Utils.checkGPSAndInternetAvailability
+                        (mapsActivity.lastAlertDialog, mapsActivity);
             }
         }
     }

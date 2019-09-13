@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50sp"
+        android:layout_marginRight="50sp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <Button
+                    android:id="@+id/button"
+                    android:layout_width="0sp"
+                    android:layout_height="30sp"
+                    android:layout_weight="1"
+                    android:background="@color/colorBelNuCloseButton"
+                    android:drawableStart="@drawable/main_btn_close"
+                    android:drawableLeft="@drawable/main_btn_close"
+                    android:fontFamily="sans-serif-light"
+                    android:padding="10sp"
+                    android:text="Annuleren"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorBelNuFrame"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="30sp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/bel_nu_title"
+                        style="@style/TextAppearancePopupTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:gravity="center_horizontal"
+                        android:text="Belcosten" />
+
+                    <TextView
+                        android:id="@+id/bel_nu_text"
+                        style="@style/TextAppearancePopup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="@dimen/margin_vertical_popup_txv"
+                        android:gravity="center_horizontal"
+                        android:text="Voor dit nummer betaalt u uw gebruikelijke belkosten." />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/bel_nu_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5sp"
+                    android:background="@drawable/main_btn_bg"
+                    android:drawableStart="@drawable/main_btn_phone"
+                    android:drawableLeft="@drawable/main_btn_phone"
+                    android:fontFamily="sans-serif-light"
+                    android:padding="10sp"
+                    android:text="Bel nu"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

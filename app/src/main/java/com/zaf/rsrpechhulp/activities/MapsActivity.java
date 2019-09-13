@@ -1,4 +1,4 @@
-package com.zaf.rsrpechhulp;
+package com.zaf.rsrpechhulp.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -14,7 +14,10 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,6 +36,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.zaf.rsrpechhulp.R;
 import com.zaf.rsrpechhulp.receivers.LocationBroadcastReceiver;
 import com.zaf.rsrpechhulp.receivers.NetworkBroadcastReceiver;
 import com.zaf.rsrpechhulp.utils.AddressObtainTask;
@@ -60,7 +64,6 @@ public class MapsActivity extends AppCompatActivity
     private BroadcastReceiver gpsSwitchStateReceiver = new LocationBroadcastReceiver(this);
     // Broadcast receiver to check the Network state
     private BroadcastReceiver networkSwitchStateReceiver = new NetworkBroadcastReceiver(this);
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +152,9 @@ public class MapsActivity extends AppCompatActivity
     }
 
 
+    // Once an instance of this interface is set on a MapFragment or MapView object,
+    // the onMapReady(GoogleMap) method is triggered when the map is ready to be used
+    // and provides a non-null instance of GoogleMap.
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -233,6 +239,13 @@ public class MapsActivity extends AppCompatActivity
             mCurrLocationMarker.showInfoWindow();
         }
         addressObtainedLock.unlock();
+    }
+
+    public void onCallButtonClick(View view){
+        Button callButton = findViewById(R.id.call_button);
+        RelativeLayout frame = findViewById(R.id.bel_nu_dialog);
+        callButton.setVisibility(View.GONE);
+        frame.setVisibility(View.VISIBLE);
     }
 
 }
