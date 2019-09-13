@@ -1,10 +1,8 @@
 package com.zaf.rsrpechhulp;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -17,7 +15,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +33,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.zaf.rsrpechhulp.receivers.LocationBroadcastReceiver;
+import com.zaf.rsrpechhulp.receivers.NetworkBroadcastReceiver;
 import com.zaf.rsrpechhulp.utils.AddressObtainTask;
 import com.zaf.rsrpechhulp.utils.CustomInfoWindowAdapter;
 import com.zaf.rsrpechhulp.utils.Utils;
@@ -56,7 +55,12 @@ public class MapsActivity extends AppCompatActivity
     LocationCallback mLocationCallback;
     ReentrantLock addressObtainedLock;
     LatLng latLng;
-    AlertDialog lastAlertDialog;
+    public AlertDialog lastAlertDialog;
+    // Broadcast receiver to check the GPS state
+    private BroadcastReceiver gpsSwitchStateReceiver = new LocationBroadcastReceiver(this);
+    // Broadcast receiver to check the Network state
+    private BroadcastReceiver networkSwitchStateReceiver = new NetworkBroadcastReceiver(this);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,43 +148,6 @@ public class MapsActivity extends AppCompatActivity
         this.registerReceiver(networkSwitchStateReceiver, filterNetwork);
     }
 
-    // Broadcast receiver to check the GPS state
-    private BroadcastReceiver gpsSwitchStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            if (LocationManager.PROVIDERS_CHANGED_ACTION.equals(intent.getAction())) {
-                LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-                boolean isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                boolean isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-                if (isGpsEnabled || isNetworkEnabled) {
-                    lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
-                } else {
-                    lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
-                }
-            }
-        }
-    };
-
-    // Broadcast receiver to check the Network state
-    private BroadcastReceiver networkSwitchStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())){
-                ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-                android.net.NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                android.net.NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-
-                if (wifi.isAvailable() || mobile.isAvailable()) {
-                    lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
-                } else {
-                    lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
-                }
-            }
-        }
-    };
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -267,4 +234,5 @@ public class MapsActivity extends AppCompatActivity
         }
         addressObtainedLock.unlock();
     }
+
 }
