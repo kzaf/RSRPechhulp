@@ -1,6 +1,7 @@
 package com.zaf.rsrpechhulp;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -28,16 +29,16 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.zaf.rsrpechhulp.Utils.AddressObtainTask;
-import com.zaf.rsrpechhulp.Utils.CustomInfoWindowAdapter;
-import com.zaf.rsrpechhulp.Utils.Utils;
+import com.zaf.rsrpechhulp.utils.AddressObtainTask;
+import com.zaf.rsrpechhulp.utils.CustomInfoWindowAdapter;
+import com.zaf.rsrpechhulp.utils.Utils;
 
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, AddressObtainTask.Callback {
+public class MapsActivity extends AppCompatActivity
+        implements OnMapReadyCallback, AddressObtainTask.Callback {
 
-    public static final LatLng AMST_LAT_LNG = new LatLng(52.370216, 4.895168);
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private GoogleMap mMap;
     ImageView back;
@@ -48,6 +49,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     LocationCallback mLocationCallback;
     ReentrantLock addressObtainedLock;
     LatLng latLng;
+    AlertDialog lastAlertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +117,29 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, this);
+        locationCallback();
+    }
+
+//    private void checkGPSAndInternetAvailability() {
+//        if(!Utils.checkGPSEnabled(this))
+//            (lastAlertDialog = Utils.alertGpsDisabled(this)).show();
+//        else if(!Utils.checkInternetConnectivity(this)){
+//            (lastAlertDialog = Utils.alertNoInternet(this)).show();
+//        }
+//        else {
+//            if(isActiveAlertDialog())
+//                lastAlertDialog.hide();
+//        }
+//    }
+//
+//    private boolean isActiveAlertDialog() {
+//        return lastAlertDialog != null && lastAlertDialog.isShowing();
+//    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -149,25 +174,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(this));
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        locationCallback();
-    }
-
-    private MarkerOptions createInitMarkerOptions() {
-        final MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_marker));
-        markerOptions.anchor(0.5f, 1.0f);
-        markerOptions.position(AMST_LAT_LNG);
-        markerOptions.infoWindowAnchor(0.5f, -0.2f);
-        return markerOptions;
-    }
-
     private void locationCallback() {
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
+                // Check GPS and network on every refresh
+                lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
                 // Get a list with locations
                 List<Location> locationList = locationResult.getLocations();
                 if (locationList.size() > 0) {
@@ -185,12 +197,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     latLng = new LatLng(location.getLatitude(), location.getLongitude());
                     if(mMap == null)
                         return;
-
-                    if(mCurrLocationMarker == null) {
-                        mCurrLocationMarker = mMap.addMarker(createInitMarkerOptions());
-                        mCurrLocationMarker.setTitle(getResources().getString(R.string.popup_address_obtaining));
-                        mCurrLocationMarker.showInfoWindow();
-                    }
 
                     // Set custom location marker
                     MarkerOptions markerOptions = new MarkerOptions();

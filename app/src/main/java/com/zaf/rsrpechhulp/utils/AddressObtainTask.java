@@ -1,4 +1,4 @@
-package com.zaf.rsrpechhulp.Utils;
+package com.zaf.rsrpechhulp.utils;
 
 import android.content.Context;
 import android.location.Address;

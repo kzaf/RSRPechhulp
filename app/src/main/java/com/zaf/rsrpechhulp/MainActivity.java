@@ -12,7 +12,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.zaf.rsrpechhulp.Utils.Utils;
+import com.zaf.rsrpechhulp.utils.Utils;
 
 public class MainActivity extends AppCompatActivity {
 

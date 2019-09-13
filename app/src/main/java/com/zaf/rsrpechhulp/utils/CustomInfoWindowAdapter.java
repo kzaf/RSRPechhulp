@@ -1,4 +1,4 @@
-package com.zaf.rsrpechhulp.Utils;
+package com.zaf.rsrpechhulp.utils;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
