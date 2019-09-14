@@ -5,8 +5,8 @@
     <color name="colorAccent">#0F78A4</color>
 
     <color name="colorSplashBackground">#FFFFFF</color>
-    <color name="colorBelNuFrame">#E6949D18</color>
-    <color name="colorBelNuCloseButton">#E61B6C86</color>
+    <color name="colorBelNuFrame">#D9ACB81B</color>
+    <color name="colorBelNuCloseButton">#D91B6C86</color>
 
-    <color name="colorBelNuBackgroundTransparency">#40000000</color>
+    <color name="colorBelNuBackgroundTransparency">#4D000000</color>
 </resources>

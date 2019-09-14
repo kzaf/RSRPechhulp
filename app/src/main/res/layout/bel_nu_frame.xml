@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="50sp"
         android:layout_marginRight="50sp"
-        android:layout_marginBottom="16sp"
+        android:layout_marginBottom="20sp"
         android:orientation="vertical">
 
         <LinearLayout
@@ -29,19 +29,19 @@
                 android:weightSum="3">
 
                 <Button
-                    android:id="@+id/button"
+                    android:id="@+id/bel_nu_close_button"
                     android:layout_width="0sp"
-                    android:layout_height="30sp"
+                    android:layout_height="25sp"
                     android:layout_weight="1"
                     android:background="@color/colorBelNuCloseButton"
                     android:drawableStart="@drawable/main_btn_close"
                     android:drawableLeft="@drawable/main_btn_close"
                     android:fontFamily="sans-serif-light"
-                    android:padding="10sp"
+                    android:paddingLeft="10sp"
                     android:text="Annuleren"
                     android:textAllCaps="false"
                     android:textColor="@android:color/white"
-                    android:textSize="12sp" />
+                    android:textSize="13sp" />
 
             </LinearLayout>
 
@@ -54,8 +54,9 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_margin="30sp"
-                    android:orientation="vertical">
+                    android:layout_margin="10sp"
+                    android:orientation="vertical"
+                    android:padding="10sp">
 
                     <TextView
                         android:id="@+id/bel_nu_title"
@@ -63,7 +64,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:gravity="center_horizontal"
+                        android:layout_marginBottom="20sp"
                         android:text="Belcosten" />
 
                     <TextView
@@ -74,6 +75,7 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="@dimen/margin_vertical_popup_txv"
                         android:gravity="center_horizontal"
+                        android:paddingBottom="25sp"
                         android:text="Voor dit nummer betaalt u uw gebruikelijke belkosten." />
                 </LinearLayout>
 
@@ -81,7 +83,7 @@
                     android:id="@+id/bel_nu_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="5sp"
+                    android:layout_margin="6sp"
                     android:background="@drawable/main_btn_bg"
                     android:drawableStart="@drawable/main_btn_phone"
                     android:drawableLeft="@drawable/main_btn_phone"

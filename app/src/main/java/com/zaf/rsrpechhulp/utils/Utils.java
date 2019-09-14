@@ -10,12 +10,15 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
 import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -26,10 +29,12 @@ import com.zaf.rsrpechhulp.activities.MapsActivity;
 import com.zaf.rsrpechhulp.R;
 
 import static com.zaf.rsrpechhulp.activities.MapsActivity.MY_PERMISSIONS_REQUEST_LOCATION;
+import static com.zaf.rsrpechhulp.activities.MapsActivity.MY_PERMISSIONS_REQUEST_PHONE;
 
 public class Utils {
     // To highlight the hyperlink in the dialog
-    public static void setClickableHighLightedText(final TextView tv, String textToHighlight, final View.OnClickListener onClickListener) {
+    public static void setClickableHighLightedText(final TextView tv, String textToHighlight,
+                                                   final View.OnClickListener onClickListener) {
         String tvt = tv.getText().toString();
         int ofe = tvt.indexOf(textToHighlight, 0);
         ClickableSpan clickableSpan = new ClickableSpan() {
@@ -51,47 +56,47 @@ public class Utils {
             if (ofe == -1)
                 break;
             else {
-                wordToSpan.setSpan(clickableSpan, ofe, ofe + textToHighlight.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                wordToSpan.setSpan(clickableSpan, ofe, ofe +
+                        textToHighlight.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 tv.setText(wordToSpan, TextView.BufferType.SPANNABLE);
                 tv.setMovementMethod(LinkMovementMethod.getInstance());
             }
         }
     }
 
+    // Check if the GPS permission has been accepted
     public static void checkLocationPermission(final MapsActivity mapsActivity) {
-        if (ContextCompat.checkSelfPermission(mapsActivity, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(mapsActivity,
+                Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(mapsActivity,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                // Shows an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(mapsActivity)
-                        .setTitle("Location Permission Needed")
-                        .setMessage("This app needs the Location permission, " +
-                                "please accept to use location functionality")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(mapsActivity,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION );
-                            }
-                        })
-                        .create()
-                        .show();
-
-
-            } else {
-                // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(mapsActivity,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION );
             }
+        }
+    }
+
+    // Check if the Phone permission has been accepted
+    public static boolean checkPhonePermission(Activity mapsActivity) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(mapsActivity,
+                    android.Manifest.permission.CALL_PHONE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+                ActivityCompat.requestPermissions(mapsActivity,
+                        new String[]{Manifest.permission.CALL_PHONE},
+                        MY_PERMISSIONS_REQUEST_PHONE);
+                return false;
+            }
+        }
+        //permission is automatically granted on sdk < 23 upon installation
+        else {
+            return true;
         }
     }
 
@@ -100,7 +105,8 @@ public class Utils {
         final LocationManager locationManager = (LocationManager)
                 context.getSystemService(Context.LOCATION_SERVICE);
 
-        return locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        return locationManager != null &&
+                locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     // Checks if currently active network is connected or connecting to Internet
@@ -113,7 +119,6 @@ public class Utils {
         return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
 
-
      // Builds an AlertDialog with information about disabled GPS location provider.
      // It starts location source settings on positive button
     public static AlertDialog alertGpsDisabled(final Activity activity) {
@@ -125,7 +130,8 @@ public class Utils {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
-                        activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                        activity.startActivity(new Intent(Settings.
+                                ACTION_LOCATION_SOURCE_SETTINGS));
                     }
                 })
                 .setNegativeButton(R.string.all_cancel, new DialogInterface.OnClickListener() {
@@ -162,7 +168,9 @@ public class Utils {
         return builder.create();
     }
 
-    public static AlertDialog checkGPSAndInternetAvailability(AlertDialog lastAlertDialog, final Activity activity) {
+    // Checks if GPS or Network is available, if not shows the respective dialog, if yes, hides the dialog
+    public static AlertDialog checkGPSAndInternetAvailability(AlertDialog lastAlertDialog,
+                                                              final Activity activity) {
         if(!checkGPSEnabled(activity))
             (lastAlertDialog = alertGpsDisabled(activity)).show();
         else if(!checkInternetConnectivity(activity)){
@@ -176,8 +184,20 @@ public class Utils {
         return lastAlertDialog;
     }
 
-    public static boolean isActiveAlertDialog(AlertDialog lastAlertDialog) {
+    private static boolean isActiveAlertDialog(AlertDialog lastAlertDialog) {
         return lastAlertDialog != null && lastAlertDialog.isShowing();
+    }
+
+    // dialIfAvailable method used to starts dialer if available with given phone number
+    public static void dialIfAvailable(Context context, String phoneNumber) {
+        // ACTION_CALL directly calls the number instead of CALL_PHONE
+        // where first it displays the number in the dialer
+        Intent dialIntent = new Intent(Intent.ACTION_CALL);
+        dialIntent.setData(Uri.parse("tel:" + phoneNumber));
+        //check if exists activity that can be started with dialIntent
+        if (context.getPackageManager().queryIntentActivities(dialIntent, 0).size() > 0) {
+            context.startActivity(dialIntent);
+        }
     }
 
 }

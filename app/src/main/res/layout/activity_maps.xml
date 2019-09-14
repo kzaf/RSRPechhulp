@@ -82,16 +82,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <include
-            android:id="@+id/bel_nu_dialog"
-            layout="@layout/bel_nu_frame"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            tools:layout_editor_absoluteX="20dp"
-            tools:layout_editor_absoluteY="20dp" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/bel_nu_dialog"
+        layout="@layout/bel_nu_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
