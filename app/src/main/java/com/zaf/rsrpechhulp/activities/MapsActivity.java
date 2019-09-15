@@ -61,7 +61,8 @@ public class MapsActivity extends AppCompatActivity
     FusedLocationProviderClient mFusedLocationClient;
     LocationCallback mLocationCallback;
     ReentrantLock addressObtainedLock;
-    LatLng latLng;
+    LatLng latLng = new LatLng(0, 0);
+    MarkerOptions markerOptions;
     public AlertDialog lastAlertDialog;
     // Broadcast receiver to check the GPS state
     private BroadcastReceiver gpsSwitchStateReceiver = new LocationBroadcastReceiver(this);
@@ -174,6 +175,8 @@ public class MapsActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mMap.getUiSettings().setCompassEnabled(false);
+
         mLocationRequest = new LocationRequest();
         // Set the interval in which you want to get locations (two seconds interval)
         mLocationRequest.setInterval(2000);
@@ -210,21 +213,26 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void locationCallback() {
+
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
+
                 // Get a list with locations
                 List<Location> locationList = locationResult.getLocations();
+
+                // If the list is not empty
                 if (locationList.size() > 0) {
+
                     //The last location in the list is the newest
                     Location location = locationList.get(locationList.size() - 1);
-                    Log.i("MapsActivity", "Location: " + location.getLatitude() + " "
-                            + location.getLongitude());
+
+                    // Replace the last location wit hte new one
                     mLastLocation = location;
+
                     // Remove the old marker from the map to add the new
-                    if (mCurrLocationMarker != null) {
+                    if (mCurrLocationMarker != null)
                         mCurrLocationMarker.remove();
-                    }
 
                     // Set the coordinates to a new LatLng object
                     latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -232,7 +240,7 @@ public class MapsActivity extends AppCompatActivity
                         return;
 
                     // Set custom location marker
-                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions = new MarkerOptions();
                     markerOptions.position(latLng);
                     markerOptions.anchor(0.5f, 1.0f);
                     markerOptions.infoWindowAnchor(0.5f, -0.2f);
@@ -243,6 +251,7 @@ public class MapsActivity extends AppCompatActivity
                     //move map camera
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
 
+                    // Obtain the address name to display
                     new AddressObtainTask(MapsActivity.this, MapsActivity.this).execute(latLng);
                 }
             }

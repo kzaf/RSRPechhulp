@@ -22,4 +22,20 @@
         <item name="android:textColor">#fff</item>
     </style>
 
+    <style name="ButtonDefault">
+        <item name="android:textSize">@dimen/textsize_btn</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@drawable/main_btn_bg</item>
+        <item name="android:paddingLeft">@dimen/padding_left_horizontal_btn</item>
+        <item name="android:paddingRight">@dimen/padding_right_horizontal_btn</item>
+        <item name="android:minHeight">@dimen/height_btn_min</item>
+        <item name="android:drawablePadding">@dimen/drawable_padding</item>
+        <item name="android:textAllCaps">@bool/text_all_caps</item>
+        <item name="android:layout_marginStart">@dimen/button_margin</item>
+        <item name="android:layout_marginLeft">@dimen/button_margin</item>
+        <item name="android:layout_marginEnd">@dimen/button_margin</item>
+        <item name="android:layout_marginRight">@dimen/button_margin</item>
+        <item name="android:layout_marginBottom">@dimen/button_margin_bottom</item>
+    </style>
+
 </resources>

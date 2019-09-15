@@ -9,4 +9,6 @@
     <color name="colorBelNuCloseButton">#D91B6C86</color>
 
     <color name="colorBelNuBackgroundTransparency">#4D000000</color>
+
+    <color name="white">#FFF</color>
 </resources>

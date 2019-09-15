@@ -37,7 +37,8 @@ public class AddressObtainTask extends AsyncTask<LatLng, Void, String> {
             if(context == null)
                 return null;
 
-            List<Address> addresses = new Geocoder(context, Locale.getDefault()).getFromLocation(latLng.latitude, latLng.longitude, 1);
+            List<Address> addresses = new Geocoder(context, Locale.getDefault())
+                    .getFromLocation(latLng.latitude, latLng.longitude, 1);
             if (!addresses.isEmpty() ) {
                 Address address = addresses.get(0);
                 StringBuilder addressStr = new StringBuilder();
@@ -66,5 +67,4 @@ public class AddressObtainTask extends AsyncTask<LatLng, Void, String> {
     public interface Callback {
         void onAddressObtained(@NonNull String address);
     }
-
 }

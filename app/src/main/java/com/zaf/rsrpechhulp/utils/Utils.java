@@ -168,7 +168,8 @@ public class Utils {
         return builder.create();
     }
 
-    // Checks if GPS or Network is available, if not shows the respective dialog, if yes, hides the dialog
+    // Checks if GPS or Network is available, if not shows the respective dialog,
+    // if yes, hides the dialog
     public static AlertDialog checkGPSAndInternetAvailability(AlertDialog lastAlertDialog,
                                                               final Activity activity) {
         if(!checkGPSEnabled(activity))
@@ -184,6 +185,7 @@ public class Utils {
         return lastAlertDialog;
     }
 
+    // Checks if the alert dialog in MapsActivity is displayed or not
     private static boolean isActiveAlertDialog(AlertDialog lastAlertDialog) {
         return lastAlertDialog != null && lastAlertDialog.isShowing();
     }
