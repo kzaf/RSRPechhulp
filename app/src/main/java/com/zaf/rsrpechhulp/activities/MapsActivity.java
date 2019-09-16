@@ -54,6 +54,7 @@ public class MapsActivity extends AppCompatActivity
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public static final int MY_PERMISSIONS_REQUEST_PHONE = 98;
     private GoogleMap mMap;
+    private boolean isTablet;
     ImageView back;
     Marker mCurrLocationMarker;
     Location mLastLocation;
@@ -75,6 +76,9 @@ public class MapsActivity extends AppCompatActivity
         setContentView(R.layout.activity_maps);
         toolbarOptions();
 
+        // If the tablet frame is available, it runs on a tablet
+        isTablet = findViewById(R.id.call_frame_tablet) != null;
+
         // Google’s LocationServices API is the one which is actually used to access device location.
         // To access these services the app needs to connect to Google Play Services.
         // With FusedLocationProviderApi it was our responsibility to initiate and manage the connection.
@@ -85,6 +89,19 @@ public class MapsActivity extends AppCompatActivity
         mapFragment.getMapAsync(this);
 
         addressObtainedLock = new ReentrantLock();
+
+    }
+
+    private void toolbarOptions() {
+        back = findViewById(R.id.back_button);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
     }
 
     // This method is called when the user selects allow or deny on a permission window
@@ -124,49 +141,39 @@ public class MapsActivity extends AppCompatActivity
         }
     }
 
-
-    private void toolbarOptions() {
-        back = findViewById(R.id.back_button);
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-            }
-        });
-    }
-
     @Override
     public void onPause() {
         super.onPause();
-        // Stop location updates when Activity is no longer active
-        if (mFusedLocationClient != null) {
-            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        if(!isTablet){
+            // Stop location updates when Activity is no longer active
+            if (mFusedLocationClient != null) {
+                mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+            }
+            // Unregister the Broadcast Receivers when the app is on background
+            this.unregisterReceiver(gpsSwitchStateReceiver);
+            this.unregisterReceiver(networkSwitchStateReceiver);
         }
-        // Unregister the Broadcast Receivers when the app is on background
-        this.unregisterReceiver(gpsSwitchStateReceiver);
-        this.unregisterReceiver(networkSwitchStateReceiver);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Check connectivity status on Activity start
-        lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
-        locationCallback();
+        if(!isTablet){
+            // Check connectivity status on Activity start
+            lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
+            locationCallback();
 
-        // Register the GPS receiver
-        IntentFilter filterGps = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
-        filterGps.addAction(Intent.ACTION_PROVIDER_CHANGED);
-        this.registerReceiver(gpsSwitchStateReceiver, filterGps);
+            // Register the GPS receiver
+            IntentFilter filterGps = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
+            filterGps.addAction(Intent.ACTION_PROVIDER_CHANGED);
+            this.registerReceiver(gpsSwitchStateReceiver, filterGps);
 
-        // Register the Network receiver
-        IntentFilter filterNetwork = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        filterNetwork.addAction(Intent.ACTION_PROVIDER_CHANGED);
-        this.registerReceiver(networkSwitchStateReceiver, filterNetwork);
+            // Register the Network receiver
+            IntentFilter filterNetwork = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+            filterNetwork.addAction(Intent.ACTION_PROVIDER_CHANGED);
+            this.registerReceiver(networkSwitchStateReceiver, filterNetwork);
+        }
     }
-
 
     // Once an instance of this interface is set on a MapFragment or MapView object,
     // the onMapReady(GoogleMap) method is triggered when the map is ready to be used
@@ -177,43 +184,49 @@ public class MapsActivity extends AppCompatActivity
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setCompassEnabled(false);
 
-        mLocationRequest = new LocationRequest();
-        // Set the interval in which you want to get locations (two seconds interval)
-        mLocationRequest.setInterval(2000);
-        // If a location is available sooner you can get it
-        // (i.e. another app is using the location services).
-        mLocationRequest.setFastestInterval(2000);
-        // Application wants high accuracy location,
-        // thus it should create a location request with PRIORITY_HIGH_ACCURACY
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        if(isTablet) {
+            // Move map camera to show the Netherlands
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(52.379189, 4.899431), 8));
 
-        // Check the android version to be API V23 (Marshmallow) and on  to show the permission
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        } else {
+            mLocationRequest = new LocationRequest();
+            // Set the interval in which you want to get locations (two seconds interval)
+            mLocationRequest.setInterval(2000);
+            // If a location is available sooner you can get it
+            // (i.e. another app is using the location services).
+            mLocationRequest.setFastestInterval(2000);
+            // Application wants high accuracy location,
+            // thus it should create a location request with PRIORITY_HIGH_ACCURACY
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                // Location Permission already granted
+            // Check the android version to be API V23 (Marshmallow) and on  to show the permission
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    // Location Permission already granted
+                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
+                            Looper.myLooper());
+                    mMap.setMyLocationEnabled(false);
+
+                } else {
+                    // Request Location Permission
+                    mMap.setMyLocationEnabled(false);
+                    Utils.checkLocationPermission(MapsActivity.this);
+                }
+            }
+            else {
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
                         Looper.myLooper());
                 mMap.setMyLocationEnabled(false);
 
-            } else {
-                // Request Location Permission
-                mMap.setMyLocationEnabled(false);
-                Utils.checkLocationPermission(MapsActivity.this);
             }
+            mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(this));
         }
-        else {
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
-                    Looper.myLooper());
-            mMap.setMyLocationEnabled(false);
 
-        }
-        mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(this));
     }
 
     private void locationCallback() {
-
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {

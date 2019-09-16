@@ -12,5 +12,4 @@
             android:gravity="center|bottom"
             android:src="@drawable/splash_logo_rsr"/>
     </item>
-
 </layer-list>

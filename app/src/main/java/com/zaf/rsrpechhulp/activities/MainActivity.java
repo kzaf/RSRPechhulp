@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,18 +31,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void toolbarOptions() {
-        toolbar = findViewById(R.id.toolbar);
-        toolbar.inflateMenu(R.menu.main_screen_menu);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                // When the info button is clicked the 'terms&conditions' Dialog pops up
-                if(menuItem.getItemId()== R.id.info_button) {
+        // When the app is running on a tablet, the system reads from the sw600dp folder
+        // If the tablet info button is present then it runs on a tablet
+        if (findViewById(R.id.info_button_tablet) != null){
+            Button infoTablet = findViewById(R.id.info_button_tablet);
+            // When the info button is clicked the 'terms&conditions' Dialog pops up
+            infoTablet.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
                     showAlertDialogButtonClicked();
                 }
-                return false;
-            }
-        });
+            });
+        // Else it is running on a phone (smaller screen) and loads the toolbar with the menu
+        }else{
+            toolbar = findViewById(R.id.toolbar);
+            toolbar.inflateMenu(R.menu.main_screen_menu);
+            toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    // When the info button is clicked the 'terms&conditions' Dialog pops up
+                    if(menuItem.getItemId()== R.id.info_button) {
+                        showAlertDialogButtonClicked();
+                    }
+                    return false;
+                }
+            });
+        }
     }
 
     public void showAlertDialogButtonClicked() {

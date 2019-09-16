@@ -76,7 +76,7 @@
                         android:layout_marginTop="@dimen/margin_vertical_popup_txv"
                         android:gravity="center_horizontal"
                         android:paddingBottom="25sp"
-                        android:text="Voor dit nummer betaalt u uw gebruikelijke belkosten." />
+                        android:text="@string/call_frame_cost_info" />
                 </LinearLayout>
 
                 <Button
