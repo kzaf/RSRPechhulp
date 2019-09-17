@@ -28,4 +28,5 @@
     <string name="phone">+31900 77 88 99 0</string>
     <string name="call_frame_cost_info">Voor dit nummer betaalt u uw gebruikelijke belkosten.</string>
     <string name="maps_frame_contact_info">Neem contact op met RSR Nederland</string>
+    <string name="tablet_frame_description_icon">tablet frame telephone icon</string>
 </resources>

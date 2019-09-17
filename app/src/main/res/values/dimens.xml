@@ -23,4 +23,8 @@
     <dimen name="toolbar_text_padding">8sp</dimen>
     <dimen name="toolbar_back_icon_dimens">15sp</dimen>
     <dimen name="toolbar_text_size">18sp</dimen>
+    <dimen name="tablet_frame_text_size">12sp</dimen>
+    <dimen name="tablet_frame_layout_margin">5sp</dimen>
+    <dimen name="tablet_frame_contact_info_size">14sp</dimen>
+    <dimen name="tablet_frame_layout_padding">20sp</dimen>
 </resources>

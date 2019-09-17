@@ -54,7 +54,6 @@ public class MapsActivity extends AppCompatActivity
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public static final int MY_PERMISSIONS_REQUEST_PHONE = 98;
     private GoogleMap mMap;
-    private boolean isTablet;
     ImageView back;
     Marker mCurrLocationMarker;
     Location mLastLocation;
@@ -75,9 +74,6 @@ public class MapsActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         toolbarOptions();
-
-        // If the tablet frame is available, it runs on a tablet
-        isTablet = findViewById(R.id.call_frame_tablet) != null;
 
         // Google’s LocationServices API is the one which is actually used to access device location.
         // To access these services the app needs to connect to Google Play Services.
@@ -144,35 +140,31 @@ public class MapsActivity extends AppCompatActivity
     @Override
     public void onPause() {
         super.onPause();
-        if(!isTablet){
-            // Stop location updates when Activity is no longer active
-            if (mFusedLocationClient != null) {
-                mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-            }
-            // Unregister the Broadcast Receivers when the app is on background
-            this.unregisterReceiver(gpsSwitchStateReceiver);
-            this.unregisterReceiver(networkSwitchStateReceiver);
+        // Stop location updates when Activity is no longer active
+        if (mFusedLocationClient != null) {
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         }
+        // Unregister the Broadcast Receivers when the app is on background
+        this.unregisterReceiver(gpsSwitchStateReceiver);
+        this.unregisterReceiver(networkSwitchStateReceiver);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(!isTablet){
-            // Check connectivity status on Activity start
-            lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
-            locationCallback();
+        // Check connectivity status on Activity start
+        lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
+        locationCallback();
 
-            // Register the GPS receiver
-            IntentFilter filterGps = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
-            filterGps.addAction(Intent.ACTION_PROVIDER_CHANGED);
-            this.registerReceiver(gpsSwitchStateReceiver, filterGps);
+        // Register the GPS receiver
+        IntentFilter filterGps = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
+        filterGps.addAction(Intent.ACTION_PROVIDER_CHANGED);
+        this.registerReceiver(gpsSwitchStateReceiver, filterGps);
 
-            // Register the Network receiver
-            IntentFilter filterNetwork = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-            filterNetwork.addAction(Intent.ACTION_PROVIDER_CHANGED);
-            this.registerReceiver(networkSwitchStateReceiver, filterNetwork);
-        }
+        // Register the Network receiver
+        IntentFilter filterNetwork = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        filterNetwork.addAction(Intent.ACTION_PROVIDER_CHANGED);
+        this.registerReceiver(networkSwitchStateReceiver, filterNetwork);
     }
 
     // Once an instance of this interface is set on a MapFragment or MapView object,
@@ -184,46 +176,39 @@ public class MapsActivity extends AppCompatActivity
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setCompassEnabled(false);
 
-        if(isTablet) {
-            // Move map camera to show the Netherlands
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(52.379189, 4.899431), 8));
+        mLocationRequest = new LocationRequest();
+        // Set the interval in which you want to get locations (two seconds interval)
+        mLocationRequest.setInterval(2000);
+        // If a location is available sooner you can get it
+        // (i.e. another app is using the location services).
+        mLocationRequest.setFastestInterval(2000);
+        // Application wants high accuracy location,
+        // thus it should create a location request with PRIORITY_HIGH_ACCURACY
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        } else {
-            mLocationRequest = new LocationRequest();
-            // Set the interval in which you want to get locations (two seconds interval)
-            mLocationRequest.setInterval(2000);
-            // If a location is available sooner you can get it
-            // (i.e. another app is using the location services).
-            mLocationRequest.setFastestInterval(2000);
-            // Application wants high accuracy location,
-            // thus it should create a location request with PRIORITY_HIGH_ACCURACY
-            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // Check the android version to be API V23 (Marshmallow) and on  to show the permission
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-            // Check the android version to be API V23 (Marshmallow) and on  to show the permission
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    // Location Permission already granted
-                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
-                            Looper.myLooper());
-                    mMap.setMyLocationEnabled(false);
-
-                } else {
-                    // Request Location Permission
-                    mMap.setMyLocationEnabled(false);
-                    Utils.checkLocationPermission(MapsActivity.this);
-                }
-            }
-            else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                // Location Permission already granted
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
                         Looper.myLooper());
                 mMap.setMyLocationEnabled(false);
 
+            } else {
+                // Request Location Permission
+                mMap.setMyLocationEnabled(false);
+                Utils.checkLocationPermission(MapsActivity.this);
             }
-            mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(this));
         }
+        else {
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
+                    Looper.myLooper());
+            mMap.setMyLocationEnabled(false);
 
+        }
+        mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(this));
     }
 
     private void locationCallback() {
@@ -284,31 +269,38 @@ public class MapsActivity extends AppCompatActivity
 
     // This method is called when the user clicks the Bel RSR nu button to make the call
     public void onCallButtonClick(View view){
-        final Button callButton = findViewById(R.id.call_button);
-        final RelativeLayout frame = findViewById(R.id.bel_nu_dialog);
-        callButton.setVisibility(View.GONE); // Hide the Bel RSR nu button
-        frame.setVisibility(View.VISIBLE); // Show the frame with the Bel nu button
+        // It is tablet
+        if (findViewById(R.id.call_button) == null){
+            if(Utils.checkPhonePermission(MapsActivity.this)){
+                Utils.dialIfAvailable(MapsActivity.this, getString(R.string.phone));
+            }
+        } else { // It is a phone
+            final Button callButton = findViewById(R.id.call_button);
+            final RelativeLayout frame = findViewById(R.id.bel_nu_dialog);
+            callButton.setVisibility(View.GONE); // Hide the Bel RSR nu button
+            frame.setVisibility(View.VISIBLE); // Show the frame with the Bel nu button
 
-        // If the Bel nu frame is open find its views
-        // and set the onClick callback actions for the buttons of the frame
-        if (frame.getVisibility() == View.VISIBLE){
-            Button frameCloseButton = findViewById(R.id.bel_nu_close_button);
-            Button belNuButton = findViewById(R.id.bel_nu_button);
-            frameCloseButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    callButton.setVisibility(View.VISIBLE);
-                    frame.setVisibility(View.GONE);
-                }
-            });
-            belNuButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(Utils.checkPhonePermission(MapsActivity.this)){
-                        Utils.dialIfAvailable(MapsActivity.this, getString(R.string.phone));
+            // If the Bel nu frame is open find its views
+            // and set the onClick callback actions for the buttons of the frame
+            if (frame.getVisibility() == View.VISIBLE){
+                Button frameCloseButton = findViewById(R.id.bel_nu_close_button);
+                Button belNuButton = findViewById(R.id.bel_nu_button);
+                frameCloseButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        callButton.setVisibility(View.VISIBLE);
+                        frame.setVisibility(View.GONE);
                     }
-                }
-            });
+                });
+                belNuButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(Utils.checkPhonePermission(MapsActivity.this)){
+                            Utils.dialIfAvailable(MapsActivity.this, getString(R.string.phone));
+                        }
+                    }
+                });
+            }
         }
     }
 
