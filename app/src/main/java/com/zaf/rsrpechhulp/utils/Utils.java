@@ -70,13 +70,10 @@ public class Utils {
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(mapsActivity,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+            ActivityCompat.requestPermissions(mapsActivity,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_LOCATION );
 
-                ActivityCompat.requestPermissions(mapsActivity,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION );
-            }
         }
     }
 
@@ -101,7 +98,7 @@ public class Utils {
     }
 
     // Checks if GPS location provider is enabled
-    public static boolean checkGPSEnabled(Context context) {
+    private static boolean checkGPSEnabled(Context context) {
         final LocationManager locationManager = (LocationManager)
                 context.getSystemService(Context.LOCATION_SERVICE);
 
