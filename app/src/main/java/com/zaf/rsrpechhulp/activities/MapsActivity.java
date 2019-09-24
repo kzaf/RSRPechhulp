@@ -55,7 +55,7 @@ public class MapsActivity extends AppCompatActivity
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public static final int MY_PERMISSIONS_REQUEST_PHONE = 98;
     private GoogleMap mMap;
-    LinearLayout back;
+    Button back;
     Marker mCurrLocationMarker;
     Location mLastLocation;
     LocationRequest mLocationRequest;
@@ -97,7 +97,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void toolbarOptions() {
-        back = findViewById(R.id.back_button_view);
+        back = findViewById(R.id.back_button);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

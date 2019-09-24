@@ -19,6 +19,8 @@
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/toolbar_text_margin"
+            android:layout_marginStart="@dimen/toolbar_text_margin"
             android:paddingStart="@dimen/toolbar_text_padding"
             android:paddingLeft="@dimen/toolbar_text_padding"
             android:text="@string/activity_main_titile"
