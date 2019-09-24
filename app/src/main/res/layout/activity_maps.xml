@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    tools:context=".activities.MainActivity">
+    tools:context=".activities.MapsActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -17,24 +17,10 @@
 
         <Button
             android:id="@+id/back_button"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:background="@drawable/map_toolbar_back_button_click_effect"
-            android:drawableStart="@drawable/menu_arrow"
-            android:drawableLeft="@drawable/menu_arrow"
-            android:drawablePadding="12sp"
-            android:gravity="center"
-            android:padding="8sp"
-            android:paddingStart="10sp"
-            android:text="@string/maps_activity_title"
-            android:textAllCaps="false"
-            android:textColor="@color/colorWhite"
-            android:textSize="@dimen/toolbar_text_size">
-
-
+            style="@style/ButtonToolbar">
         </Button>
-
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -68,7 +54,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:drawableStart="@drawable/main_btn_phone"
-            android:drawableLeft="@drawable/main_btn_phone"
             android:onClick="onCallButtonClick"
             android:text="@string/maps_activity_call_button_text"
             style="@style/ButtonDefault"/>

@@ -4,17 +4,20 @@
     <dimen name="width_popup">200dp</dimen>
     <dimen name="margin_vertical_popup_txv">10dp</dimen>
 
-    <dimen name="textsize_popup">14sp</dimen>
-    <dimen name="textsize_popup_title">18sp</dimen>
+    <dimen name="text_size_popup">14sp</dimen>
+    <dimen name="text_size_popup_title">18sp</dimen>
 
-    <dimen name="textsize_btn">16sp</dimen>
-    <dimen name="width_btn">270dp</dimen>
-    <dimen name="padding_left_horizontal_btn">20sp</dimen>
-    <dimen name="padding_right_horizontal_btn">100sp</dimen>
-    <dimen name="height_btn_min">45dp</dimen>
-    <dimen name="drawable_padding">80sp</dimen>
-    <dimen name="button_margin">24sp</dimen>
-    <dimen name="button_margin_bottom">16sp</dimen>
+    <dimen name="button_default_text_size_btn">16sp</dimen>
+    <dimen name="button_default_padding_left_horizontal_btn">20sp</dimen>
+    <dimen name="button_default_padding_right_horizontal_btn">100sp</dimen>
+    <dimen name="button_default_height_btn_min">45dp</dimen>
+    <dimen name="button_default_drawable_padding">80sp</dimen>
+    <dimen name="button_default_margin">24sp</dimen>
+    <dimen name="button_default_margin_bottom">16sp</dimen>
+
+    <dimen name="button_toolbar_drawable_padding">12sp</dimen>
+    <dimen name="button_toolbar_padding">8sp</dimen>
+    <dimen name="button_toolbar_padding_start">10sp</dimen>
 
     <dimen name="maps_constraint_padding">0dp</dimen>
 

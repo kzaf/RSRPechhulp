@@ -83,14 +83,16 @@ public class MapsActivity extends AppCompatActivity
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
 
         // A ReentrantLock is owned by the thread last successfully locking,
         // but not yet unlocking it. A thread invoking lock will return,
         // successfully acquiring the lock, when the lock is not owned by another thread.
         // The method will return immediately if the current thread already owns the lock.
-        /**
-         * See <a href="https://developer.android.com/reference/java/util/concurrent/locks/ReentrantLock">ReentrantLock</a>
+        /*
+          See <a href="https://developer.android.com/reference/java/util/concurrent/locks/ReentrantLock">ReentrantLock</a>
          */
         addressObtainedLock = new ReentrantLock();
 
@@ -311,8 +313,5 @@ public class MapsActivity extends AppCompatActivity
             }
         }
     }
-
-
-
 
 }
