@@ -18,7 +18,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dialog_margin"
-        android:layout_marginLeft="@dimen/dialog_margin"
         android:lines="2"
         android:autoLink="web"
         android:linksClickable="true"

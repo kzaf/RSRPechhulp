@@ -19,10 +19,9 @@
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/toolbar_text_margin"
             android:layout_marginStart="@dimen/toolbar_text_margin"
             android:paddingStart="@dimen/toolbar_text_padding"
-            android:paddingLeft="@dimen/toolbar_text_padding"
+            android:paddingEnd="@dimen/toolbar_text_padding"
             android:text="@string/activity_main_titile"
             android:textColor="@color/colorWhite"
             android:textSize="@dimen/toolbar_text_size" />
@@ -33,7 +32,7 @@
         android:id="@+id/toolbar_shadow"
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_shadow_height"
-        android:background="@drawable/toolbar_dropshadow"
+        android:background="@drawable/toolbar_drop_shadow"
         app:layout_anchor="@id/toolbar"
         app:layout_anchorGravity="bottom|end" />
 
@@ -53,7 +52,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:drawableStart="@drawable/main_btn_warning"
-            android:drawableLeft="@drawable/main_btn_warning"
             android:onClick="startMapsActivity"
             android:text="@string/activity_main_button_text"
             style="@style/ButtonDefault"/>

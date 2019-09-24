@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/toolbar_text_padding"
-            android:paddingLeft="@dimen/toolbar_text_padding"
+            android:paddingEnd="@dimen/toolbar_text_padding"
             android:text="@string/activity_main_titile"
             android:textColor="@color/colorWhite"
             android:textSize="@dimen/toolbar_text_size" />
@@ -31,7 +31,7 @@
         android:id="@+id/toolbar_shadow"
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_shadow_height"
-        android:background="@drawable/toolbar_dropshadow"
+        android:background="@drawable/toolbar_drop_shadow"
         app:layout_anchor="@id/toolbar"
         app:layout_anchorGravity="bottom|end" />
 
@@ -63,7 +63,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/main_btn_warning"
-                android:drawableLeft="@drawable/main_btn_warning"
                 android:onClick="startMapsActivity"
                 android:text="@string/activity_main_button_text" />
 
@@ -73,7 +72,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawableStart="@drawable/main_i"
-                android:drawableLeft="@drawable/main_i"
                 android:onClick="startMapsActivity"
                 android:text="@string/privacy_dialog_title_text" />
         </LinearLayout>

@@ -35,7 +35,6 @@
 
     <dimen name="call_popup_frame_layout_margin">50sp</dimen>
     <dimen name="call_popup_frame_layout_bottom_margin">20sp</dimen>
-    <dimen name="call_popup_frame_layout_button_width">0sp</dimen>
     <dimen name="call_popup_frame_layout_button_height">25sp</dimen>
     <dimen name="call_popup_frame_layout_button_padding_left">10sp</dimen>
     <dimen name="call_popup_frame_layout_button_text_size">12sp</dimen>
