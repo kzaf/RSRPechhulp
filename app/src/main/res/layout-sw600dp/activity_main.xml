@@ -21,8 +21,8 @@
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/toolbar_text_padding"
             android:paddingLeft="@dimen/toolbar_text_padding"
-            android:text="@string/title_activity_main"
-            android:textColor="@color/white"
+            android:text="@string/activity_main_titile"
+            android:textColor="@color/colorWhite"
             android:textSize="@dimen/toolbar_text_size" />
 
     </androidx.appcompat.widget.Toolbar>
@@ -65,7 +65,7 @@
                 android:drawableStart="@drawable/main_btn_warning"
                 android:drawableLeft="@drawable/main_btn_warning"
                 android:onClick="startMapsActivity"
-                android:text="@string/main_button_text" />
+                android:text="@string/activity_main_button_text" />
 
             <Button
                 android:id="@+id/info_button_tablet"
@@ -75,7 +75,7 @@
                 android:drawableStart="@drawable/main_i"
                 android:drawableLeft="@drawable/main_i"
                 android:onClick="startMapsActivity"
-                android:text="@string/dialog_title_text" />
+                android:text="@string/privacy_dialog_title_text" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

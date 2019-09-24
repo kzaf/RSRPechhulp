@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -54,7 +55,7 @@ public class MapsActivity extends AppCompatActivity
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public static final int MY_PERMISSIONS_REQUEST_PHONE = 98;
     private GoogleMap mMap;
-    ImageView back;
+    LinearLayout back;
     Marker mCurrLocationMarker;
     Location mLastLocation;
     LocationRequest mLocationRequest;
@@ -96,7 +97,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
     private void toolbarOptions() {
-        back = findViewById(R.id.back_button);
+        back = findViewById(R.id.back_button_view);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

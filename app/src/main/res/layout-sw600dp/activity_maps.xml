@@ -15,23 +15,31 @@
         android:background="@color/colorPrimary"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <ImageView
-            android:id="@+id/back_button"
-            android:layout_width="@dimen/toolbar_back_icon_dimens"
-            android:layout_height="@dimen/toolbar_back_icon_dimens"
-            android:contentDescription="@string/toolbar_back_button_maps"
-            app:srcCompat="@drawable/menu_arrow" />
-
-        <TextView
-            android:id="@+id/toolbar_title"
+        <LinearLayout
+            android:id="@+id/back_button_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/toolbar_text_padding"
-            android:paddingLeft="@dimen/toolbar_text_padding"
-            android:text="@string/title_activity_maps"
-            android:textColor="@color/white"
-            android:textSize="@dimen/toolbar_text_size" />
+            android:background="@drawable/map_toolbar_back_button_clcik_effect"
+            android:gravity="center">
 
+            <ImageView
+                android:id="@+id/back_button"
+                android:layout_width="@dimen/toolbar_back_icon_dimens"
+                android:layout_height="@dimen/toolbar_back_icon_dimens"
+                android:contentDescription="@string/maps_activity_toolbar_back_button"
+                app:srcCompat="@drawable/menu_arrow" />
+
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/toolbar_text_padding"
+                android:paddingLeft="@dimen/toolbar_text_padding"
+                android:text="@string/maps_activity_title"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/toolbar_text_size" />
+
+        </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
     <View

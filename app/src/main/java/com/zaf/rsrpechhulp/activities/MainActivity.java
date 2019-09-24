@@ -67,11 +67,11 @@ public class MainActivity extends AppCompatActivity {
         // Set the custom layout
         final View customLayout = getLayoutInflater().inflate(R.layout.dialog_layout, null);
         TextView dialogTextTextView = customLayout.findViewById(R.id.dialog_text);
-        dialogTextTextView.setText(getResources().getString(R.string.dialog_text_text));
+        dialogTextTextView.setText(getResources().getString(R.string.privacy_dialog_text));
         if (dialogTextTextView.getText().toString().contains(getResources().
-                getString(R.string.privacy_policy_dutch))) {
+                getString(R.string.privacy_dialog_privacy_policy_hyperlink_text))) {
             Utils.setClickableHighLightedText(dialogTextTextView, getResources().
-                            getString(R.string.privacy_policy_dutch)
+                            getString(R.string.privacy_dialog_privacy_policy_hyperlink_text)
                     , new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -82,14 +82,14 @@ public class MainActivity extends AppCompatActivity {
                     intent.addCategory(Intent.CATEGORY_BROWSABLE);
                     // Pass the url to the intent
                     intent.setData(Uri.parse(getResources().
-                            getString(R.string.hetprivacybeleid_hyperlink)));
+                            getString(R.string.privacy_dialog_hyperlink)));
                     startActivity(intent);
                 }
             });
         }
         builder.setView(customLayout);
         // Add a button
-        builder.setPositiveButton(getResources().getString(R.string.confirm_dutch),
+        builder.setPositiveButton(getResources().getString(R.string.privacy_dialog_confirm),
                 new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

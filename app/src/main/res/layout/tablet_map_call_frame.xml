@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:background="@color/colorBelNuCloseButton"
+            android:background="@color/colorCallPopupCloseButton"
             android:gravity="center"
             android:orientation="vertical"
             android:padding="@dimen/tablet_frame_layout_padding">
@@ -28,7 +28,7 @@
                 android:layout_margin="@dimen/tablet_frame_layout_margin"
                 android:gravity="center"
                 android:text="@string/maps_frame_contact_info"
-                android:textColor="@color/white"
+                android:textColor="@color/colorWhite"
                 android:textSize="@dimen/tablet_frame_contact_info_size" />
 
             <LinearLayout
@@ -55,7 +55,7 @@
                     android:gravity="center|start"
                     android:onClick="onCallButtonClick"
                     android:text="@string/phone"
-                    android:textColor="@color/white"
+                    android:textColor="@color/colorWhite"
                     android:textSize="@dimen/tablet_frame_text_size" />
             </LinearLayout>
 
@@ -65,8 +65,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/tablet_frame_layout_margin"
                 android:gravity="center"
-                android:text="@string/call_frame_cost_info"
-                android:textColor="@color/white"
+                android:text="@string/call_popup_frame_layout_cost_info_text"
+                android:textColor="@color/colorWhite"
                 android:textSize="@dimen/tablet_frame_text_size" />
         </LinearLayout>
 

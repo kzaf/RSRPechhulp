@@ -1,16 +1,20 @@
 <resources>
     <string name="app_name">RSR</string>
-    <string name="title_activity_main">RSR Revalidateservice</string>
+
+    <string name="activity_main_titile">RSR Revalidateservice</string>
+    <string name="activity_main_button_text">RSR Pechhulp</string>
+
     <string name="information_menu_item">information</string>
-    <string name="dialog_title_text">Privacybeleid</string>
-    <string name="dialog_text_text">Om deze app te gebruiken, dient u hetprivacybeleid te accepteren.</string>
-    <string name="hetprivacybeleid_hyperlink">http://www.rsr.nl/index.php?page=privacy-wetgeving</string>
-    <string name="title_activity_maps">RSR Pechhulp</string>
-    <string name="toolbar_back_button_maps">Back button</string>
-    <string name="map_button_text">Bel RSR nu</string>
-    <string name="main_button_text">RSR Pechhulp</string>
-    <string name="privacy_policy_dutch">hetprivacybeleid</string>
-    <string name="confirm_dutch">BEVESTIG</string>
+
+    <string name="privacy_dialog_title_text">Privacybeleid</string>
+    <string name="privacy_dialog_text">Om deze app te gebruiken, dient u \n het privacybeleid te accepteren.</string>
+    <string name="privacy_dialog_hyperlink">http://www.rsr.nl/index.php?page=privacy-wetgeving</string>
+    <string name="privacy_dialog_confirm">BEVESTIG</string>
+    <string name="privacy_dialog_privacy_policy_hyperlink_text">privacybeleid</string>
+
+    <string name="maps_activity_title">RSR Pechhulp</string>
+    <string name="maps_activity_toolbar_back_button">Back button</string>
+    <string name="maps_activity_call_button_text">Bel RSR nu</string>
 
     <string name="popup_address_title_dutch">Uw Locatie:</string>
     <string name="popup_address_obtaining">Current Address&#8230;</string>
@@ -26,7 +30,13 @@
     <string name="all_cancel">Annuleren</string>
 
     <string name="phone">+31900 77 88 99 0</string>
-    <string name="call_frame_cost_info">Voor dit nummer betaalt u uw gebruikelijke belkosten.</string>
+    <string name="call_popup_frame_layout_cost_info_text">Voor dit nummer betaalt u uw gebruikelijke belkosten.</string>
+    <string name="call_popup_button_text">Bel nu</string>
+    <string name="call_popup_frame_layout_button_text">Annuleren</string>
+    <string name="call_popup_frame_layout_title_text">Belcosten</string>
+
     <string name="maps_frame_contact_info">Neem contact op met RSR Nederland</string>
+
     <string name="tablet_frame_description_icon">tablet frame telephone icon</string>
+
 </resources>

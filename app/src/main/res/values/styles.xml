@@ -24,7 +24,7 @@
 
     <style name="ButtonDefault">
         <item name="android:textSize">@dimen/textsize_btn</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/colorWhite</item>
         <item name="android:background">@drawable/main_btn_bg</item>
         <item name="android:paddingLeft">@dimen/padding_left_horizontal_btn</item>
         <item name="android:paddingRight">@dimen/padding_right_horizontal_btn</item>
