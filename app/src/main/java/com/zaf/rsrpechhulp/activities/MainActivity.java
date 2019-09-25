@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         dialogTextTextView.setText(getResources().getString(R.string.privacy_dialog_text));
         if (dialogTextTextView.getText().toString().contains(getResources().
                 getString(R.string.privacy_dialog_privacy_policy_hyperlink_text))) {
-            Utils.setClickableHighLightedText(dialogTextTextView, getResources().
+            Utils.setClickableHighlightedText(dialogTextTextView, getResources().
                             getString(R.string.privacy_dialog_privacy_policy_hyperlink_text)
                     , new View.OnClickListener() {
                 @Override

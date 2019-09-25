@@ -24,7 +24,6 @@
     <dimen name="toolbar_shadow_height">3sp</dimen>
     <dimen name="toolbar_content_insert_start">0dp</dimen>
     <dimen name="toolbar_text_padding">8sp</dimen>
-    <dimen name="toolbar_back_icon_dimens">15sp</dimen>
     <dimen name="toolbar_text_size">18sp</dimen>
     <dimen name="toolbar_text_margin">5sp</dimen>
 

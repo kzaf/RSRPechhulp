@@ -13,7 +13,6 @@
     <string name="privacy_dialog_privacy_policy_hyperlink_text">privacybeleid</string>
 
     <string name="maps_activity_title">RSR Pechhulp</string>
-    <string name="maps_activity_toolbar_back_button">Back button</string>
     <string name="maps_activity_call_button_text">Bel RSR nu</string>
 
     <string name="popup_address_title_dutch">Uw Locatie:</string>

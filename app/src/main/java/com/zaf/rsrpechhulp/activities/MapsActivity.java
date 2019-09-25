@@ -12,18 +12,12 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -40,14 +34,17 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.zaf.rsrpechhulp.R;
-import com.zaf.rsrpechhulp.receivers.LocationBroadcastReceiver;
-import com.zaf.rsrpechhulp.receivers.NetworkBroadcastReceiver;
+import com.zaf.rsrpechhulp.receivers.ConnectionBroadcastReceiver;
 import com.zaf.rsrpechhulp.utils.AddressObtainTask;
 import com.zaf.rsrpechhulp.utils.CustomInfoWindowAdapter;
-import com.zaf.rsrpechhulp.utils.Utils;
 
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static com.zaf.rsrpechhulp.utils.PermissionsUtils.checkGPSAndInternetAvailability;
+import static com.zaf.rsrpechhulp.utils.PermissionsUtils.checkLocationPermission;
+import static com.zaf.rsrpechhulp.utils.PermissionsUtils.checkPhonePermission;
+import static com.zaf.rsrpechhulp.utils.Utils.dialIfAvailable;
 
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback, AddressObtainTask.Callback {
@@ -65,10 +62,7 @@ public class MapsActivity extends AppCompatActivity
     LatLng latLng = new LatLng(0, 0);
     MarkerOptions markerOptions;
     public AlertDialog lastAlertDialog;
-    // Broadcast receiver to check the GPS state
-    private BroadcastReceiver gpsSwitchStateReceiver = new LocationBroadcastReceiver(this);
-    // Broadcast receiver to check the Network state
-    private BroadcastReceiver networkSwitchStateReceiver = new NetworkBroadcastReceiver(this);
+    private BroadcastReceiver connectionStateReceiver = new ConnectionBroadcastReceiver(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +135,7 @@ public class MapsActivity extends AppCompatActivity
                         PackageManager.PERMISSION_GRANTED) {
 
                     // If phone permission accepted, do the call
-                    Utils.dialIfAvailable(MapsActivity.this, getString(R.string.phone));
+                    dialIfAvailable(MapsActivity.this, getString(R.string.phone));
                 }
             }
         }
@@ -155,26 +149,24 @@ public class MapsActivity extends AppCompatActivity
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         }
         // Unregister the Broadcast Receivers when the app is on background
-        this.unregisterReceiver(gpsSwitchStateReceiver);
-        this.unregisterReceiver(networkSwitchStateReceiver);
+        this.unregisterReceiver(connectionStateReceiver);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         // Check connectivity status on Activity start
-        lastAlertDialog = Utils.checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
+        lastAlertDialog = checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
         locationCallback();
 
-        // Register the GPS receiver
         IntentFilter filterGps = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
         filterGps.addAction(Intent.ACTION_PROVIDER_CHANGED);
-        this.registerReceiver(gpsSwitchStateReceiver, filterGps);
+        this.registerReceiver(connectionStateReceiver, filterGps);
 
-        // Register the Network receiver
         IntentFilter filterNetwork = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         filterNetwork.addAction(Intent.ACTION_PROVIDER_CHANGED);
-        this.registerReceiver(networkSwitchStateReceiver, filterNetwork);
+        this.registerReceiver(connectionStateReceiver, filterNetwork);
+
     }
 
     // Once an instance of this interface is set on a MapFragment or MapView object,
@@ -209,7 +201,7 @@ public class MapsActivity extends AppCompatActivity
             } else {
                 // Request Location Permission
                 mMap.setMyLocationEnabled(false);
-                Utils.checkLocationPermission(MapsActivity.this);
+                checkLocationPermission(MapsActivity.this);
             }
         }
         else {
@@ -281,8 +273,8 @@ public class MapsActivity extends AppCompatActivity
     public void onCallButtonClick(View view){
         // It is tablet
         if (findViewById(R.id.call_button) == null){
-            if(Utils.checkPhonePermission(MapsActivity.this)){
-                Utils.dialIfAvailable(MapsActivity.this, getString(R.string.phone));
+            if(checkPhonePermission(MapsActivity.this)){
+                dialIfAvailable(MapsActivity.this, getString(R.string.phone));
             }
         } else { // It is a phone
             final Button callButton = findViewById(R.id.call_button);
@@ -305,8 +297,8 @@ public class MapsActivity extends AppCompatActivity
                 belNuButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(Utils.checkPhonePermission(MapsActivity.this)){
-                            Utils.dialIfAvailable(MapsActivity.this, getString(R.string.phone));
+                        if(checkPhonePermission(MapsActivity.this)){
+                            dialIfAvailable(MapsActivity.this, getString(R.string.phone));
                         }
                     }
                 });
