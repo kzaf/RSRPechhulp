@@ -1,94 +1,73 @@
 package com.zaf.rsrpechhulp.activities;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.zaf.rsrpechhulp.R;
 import com.zaf.rsrpechhulp.receivers.ConnectionBroadcastReceiver;
 import com.zaf.rsrpechhulp.utils.AddressObtainTask;
-import com.zaf.rsrpechhulp.utils.CustomInfoWindowAdapter;
+import com.zaf.rsrpechhulp.utils.MapUtils;
 import com.zaf.rsrpechhulp.utils.Utilities;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.zaf.rsrpechhulp.utils.PermissionAlertDialogUtils.checkGPSAndInternetAvailability;
-import static com.zaf.rsrpechhulp.utils.PermissionCheck.checkLocationPermission;
 import static com.zaf.rsrpechhulp.utils.PermissionCheck.checkPhonePermission;
 import static com.zaf.rsrpechhulp.utils.Utilities.dialIfAvailable;
 
+/**
+ * Google’s LocationServices API is the one which is actually used to access device location.
+ * To access these services the app needs to connect to Google Play Services.
+ * With FusedLocationProviderApi it was our responsibility to initiate and manage the connection.
+ */
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback, AddressObtainTask.Callback {
 
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    public static final int MY_PERMISSIONS_REQUEST_PHONE = 98;
-    private GoogleMap mMap;
-    private Marker mCurrLocationMarker;
-    private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
     private ReentrantLock addressObtainedLock;
-    private LatLng latLng = new LatLng(0, 0);
-    private List<Location> locationList;
     public AlertDialog lastAlertDialog;
-    private boolean isFirstTime = true;
-    private String lastAddress;
+
     private BroadcastReceiver connectionStateReceiver = new ConnectionBroadcastReceiver(this);
 
-    // Google’s LocationServices API is the one which is actually used to access device location.
-    // To access these services the app needs to connect to Google Play Services.
-    // With FusedLocationProviderApi it was our responsibility to initiate and manage the connection.
-
-    // A ReentrantLock is owned by the thread last successfully locking,
-    // but not yet unlocking it. A thread invoking lock will return,
-    // successfully acquiring the lock, when the lock is not owned by another thread.
-    // The method will return immediately if the current thread already owns the lock.
-        /*
-          See <a href="https://developer.android.com/reference/java/util/concurrent/locks/ReentrantLock">ReentrantLock</a>
-         */
+    /**
+     * A ReentrantLock is owned by the thread last successfully locking,
+     * but not yet unlocking it. A thread invoking lock will return,
+     * successfully acquiring the lock, when the lock is not owned by another thread.
+     * The method will return immediately if the current thread already owns the lock.
+     *
+     * See <a href="https://developer.android.com/reference/java/util/concurrent/locks/ReentrantLock">ReentrantLock</a>
+     *
+     * @param savedInstanceState Default parameter for onCreate method.
+     *                     It can be passed back to onCreate if the activity needs to be recreated
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        SupportMapFragment mapFragment
+                = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
+
         addressObtainedLock = new ReentrantLock();
     }
 
@@ -101,51 +80,10 @@ public class MapsActivity extends AppCompatActivity
         super.onResume();
 
         lastAlertDialog = checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
-        getLocation();
-
         Utilities.registerReceivers(this, connectionStateReceiver);
-    }
 
+        mLocationCallback = MapUtils.getLocation(this);
 
-    private void getLocation() {
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                locationList = locationResult.getLocations();
-
-                if (locationList.size() > 0 ) {
-                    if(mMap == null) return;
-
-                    Location location = locationList.get(locationList.size() - 1);
-
-                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-
-                    if (mCurrLocationMarker != null){
-                        mCurrLocationMarker.remove();
-                    }
-
-                    mCurrLocationMarker = mMap.addMarker(new MarkerOptions()
-                            .position(latLng)
-                            .anchor(0.5f, 1.0f)
-                            .infoWindowAnchor(0.5f, -0.2f)
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_marker)));
-
-                    mCurrLocationMarker.setTitle(lastAddress);
-                    mCurrLocationMarker.showInfoWindow();
-
-                    new AddressObtainTask(MapsActivity.this, MapsActivity.this).execute(latLng);
-
-                    if (isFirstTime){ // Do not move the camera after the first time of locating
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
-                        isFirstTime = false;
-                    }
-
-                }
-
-            }
-
-        };
     }
 
     /**
@@ -162,44 +100,6 @@ public class MapsActivity extends AppCompatActivity
         this.unregisterReceiver(connectionStateReceiver);
     }
 
-    // This method is called when the user selects allow or deny on a permission window
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        switch (requestCode) {
-            // If request is cancelled, the result arrays are empty.
-            case MY_PERMISSIONS_REQUEST_LOCATION:
-                // permission was granted!
-                if (grantResults.length > 0 && grantResults[0] ==
-                        PackageManager.PERMISSION_GRANTED) {
-                    // If permission accepted check if the permission is in the manifest
-                    if (ContextCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_FINE_LOCATION) ==
-                            PackageManager.PERMISSION_GRANTED) {
-                        // If permission is in the manifest load the map
-                        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                                mLocationCallback, Looper.myLooper());
-                        mMap.setMyLocationEnabled(false);
-                    }
-                } else {
-                    // If permission denied close the Map Activity
-                    finish();
-                }
-            break;
-
-            case MY_PERMISSIONS_REQUEST_PHONE: {
-
-                if (grantResults.length > 0 && grantResults[0] ==
-                        PackageManager.PERMISSION_GRANTED) {
-
-                    // If phone permission accepted, do the call
-                    dialIfAvailable(MapsActivity.this, getString(R.string.phone));
-                }
-            }
-        }
-    }
-
-
     /**
      * Once an instance of this interface is set on a MapFragment or MapView object,
      * the onMapReady(GoogleMap) method is triggered when the map is ready to be used
@@ -208,36 +108,21 @@ public class MapsActivity extends AppCompatActivity
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        MapUtils.setUpMap(googleMap, mFusedLocationClient, mLocationCallback, this);
+    }
 
-        mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mMap.getUiSettings().setCompassEnabled(false);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+    /**
+     * Called when the user selects allow or deny on a permission window
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(2000);
-        mLocationRequest.setFastestInterval(2000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-
-                mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                        mLocationCallback, Looper.myLooper());
-
-            } else {
-                checkLocationPermission(MapsActivity.this);
-            }
-        }
-        else {
-
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                    mLocationCallback, Looper.myLooper());
-
-        }
-        mMap.setMyLocationEnabled(false);
-        mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(this));
+        MapUtils.checkPermissionRequestCode(
+                this, requestCode, grantResults, mFusedLocationClient, mLocationCallback);
     }
 
     /**
@@ -248,12 +133,9 @@ public class MapsActivity extends AppCompatActivity
      */
     @Override
     public void onAddressObtained(@NonNull String address) {
+
         addressObtainedLock.lock();
-        if(mCurrLocationMarker != null) {
-            lastAddress = address;
-            mCurrLocationMarker.setTitle(address);
-            mCurrLocationMarker.showInfoWindow();
-        }
+        MapUtils.setUpMarkerAddress(address);
         addressObtainedLock.unlock();
     }
 
@@ -263,6 +145,7 @@ public class MapsActivity extends AppCompatActivity
      * @param view View is required when calling from XML as it holds the OnClickListener
      */
     public void onCallButtonClick(View view){
+
         // It is tablet
         if (findViewById(R.id.call_button) == null){
             if(checkPhonePermission(MapsActivity.this)){
@@ -302,6 +185,7 @@ public class MapsActivity extends AppCompatActivity
      * @param view View is required when calling from XML as it holds the OnClickListener
      */
     public void onBackButtonClick(View view) {
+
         Button back = findViewById(R.id.back_button);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
