@@ -37,14 +37,16 @@ import com.zaf.rsrpechhulp.R;
 import com.zaf.rsrpechhulp.receivers.ConnectionBroadcastReceiver;
 import com.zaf.rsrpechhulp.utils.AddressObtainTask;
 import com.zaf.rsrpechhulp.utils.CustomInfoWindowAdapter;
+import com.zaf.rsrpechhulp.utils.Utilities;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.zaf.rsrpechhulp.utils.PermissionsUtils.checkGPSAndInternetAvailability;
-import static com.zaf.rsrpechhulp.utils.PermissionsUtils.checkLocationPermission;
-import static com.zaf.rsrpechhulp.utils.PermissionsUtils.checkPhonePermission;
-import static com.zaf.rsrpechhulp.utils.Utils.dialIfAvailable;
+import static com.zaf.rsrpechhulp.utils.PermissionAlertDialogUtils.checkGPSAndInternetAvailability;
+import static com.zaf.rsrpechhulp.utils.PermissionCheck.checkLocationPermission;
+import static com.zaf.rsrpechhulp.utils.PermissionCheck.checkPhonePermission;
+import static com.zaf.rsrpechhulp.utils.Utilities.dialIfAvailable;
 
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback, AddressObtainTask.Callback {
@@ -52,27 +54,34 @@ public class MapsActivity extends AppCompatActivity
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public static final int MY_PERMISSIONS_REQUEST_PHONE = 98;
     private GoogleMap mMap;
-    Button back;
-    Marker mCurrLocationMarker;
-    Location mLastLocation;
-    LocationRequest mLocationRequest;
-    FusedLocationProviderClient mFusedLocationClient;
-    LocationCallback mLocationCallback;
-    ReentrantLock addressObtainedLock;
-    LatLng latLng = new LatLng(0, 0);
-    MarkerOptions markerOptions;
+    private Marker mCurrLocationMarker;
+    private LocationRequest mLocationRequest;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LocationCallback mLocationCallback;
+    private ReentrantLock addressObtainedLock;
+    private LatLng latLng = new LatLng(0, 0);
+    private List<Location> locationList;
     public AlertDialog lastAlertDialog;
+    private boolean isFirstTime = true;
+    private String lastAddress;
     private BroadcastReceiver connectionStateReceiver = new ConnectionBroadcastReceiver(this);
 
+    // Google’s LocationServices API is the one which is actually used to access device location.
+    // To access these services the app needs to connect to Google Play Services.
+    // With FusedLocationProviderApi it was our responsibility to initiate and manage the connection.
+
+    // A ReentrantLock is owned by the thread last successfully locking,
+    // but not yet unlocking it. A thread invoking lock will return,
+    // successfully acquiring the lock, when the lock is not owned by another thread.
+    // The method will return immediately if the current thread already owns the lock.
+        /*
+          See <a href="https://developer.android.com/reference/java/util/concurrent/locks/ReentrantLock">ReentrantLock</a>
+         */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        toolbarOptions();
 
-        // Google’s LocationServices API is the one which is actually used to access device location.
-        // To access these services the app needs to connect to Google Play Services.
-        // With FusedLocationProviderApi it was our responsibility to initiate and manage the connection.
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -80,28 +89,77 @@ public class MapsActivity extends AppCompatActivity
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
-
-        // A ReentrantLock is owned by the thread last successfully locking,
-        // but not yet unlocking it. A thread invoking lock will return,
-        // successfully acquiring the lock, when the lock is not owned by another thread.
-        // The method will return immediately if the current thread already owns the lock.
-        /*
-          See <a href="https://developer.android.com/reference/java/util/concurrent/locks/ReentrantLock">ReentrantLock</a>
-         */
         addressObtainedLock = new ReentrantLock();
-
     }
 
-    private void toolbarOptions() {
-        back = findViewById(R.id.back_button);
-        back.setOnClickListener(new View.OnClickListener() {
+    /**
+     * Check connectivity status on Activity start
+     * Register the Broadcast Receivers for the connection check
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        lastAlertDialog = checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
+        getLocation();
+
+        Utilities.registerReceivers(this, connectionStateReceiver);
+    }
+
+
+    private void getLocation() {
+        mLocationCallback = new LocationCallback() {
             @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+            public void onLocationResult(LocationResult locationResult) {
+                locationList = locationResult.getLocations();
+
+                if (locationList.size() > 0 ) {
+                    if(mMap == null) return;
+
+                    Location location = locationList.get(locationList.size() - 1);
+
+                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+
+                    if (mCurrLocationMarker != null){
+                        mCurrLocationMarker.remove();
+                    }
+
+                    mCurrLocationMarker = mMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .anchor(0.5f, 1.0f)
+                            .infoWindowAnchor(0.5f, -0.2f)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_marker)));
+
+                    mCurrLocationMarker.setTitle(lastAddress);
+                    mCurrLocationMarker.showInfoWindow();
+
+                    new AddressObtainTask(MapsActivity.this, MapsActivity.this).execute(latLng);
+
+                    if (isFirstTime){ // Do not move the camera after the first time of locating
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+                        isFirstTime = false;
+                    }
+
+                }
+
             }
-        });
+
+        };
+    }
+
+    /**
+     * Stop location updates when Activity is no longer active
+     * Unregister the Broadcast Receivers when the app is on background
+     */
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mFusedLocationClient != null)
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+
+        this.unregisterReceiver(connectionStateReceiver);
     }
 
     // This method is called when the user selects allow or deny on a permission window
@@ -141,135 +199,69 @@ public class MapsActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        // Stop location updates when Activity is no longer active
-        if (mFusedLocationClient != null) {
-            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-        }
-        // Unregister the Broadcast Receivers when the app is on background
-        this.unregisterReceiver(connectionStateReceiver);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Check connectivity status on Activity start
-        lastAlertDialog = checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
-        locationCallback();
-
-        IntentFilter filterGps = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
-        filterGps.addAction(Intent.ACTION_PROVIDER_CHANGED);
-        this.registerReceiver(connectionStateReceiver, filterGps);
-
-        IntentFilter filterNetwork = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        filterNetwork.addAction(Intent.ACTION_PROVIDER_CHANGED);
-        this.registerReceiver(connectionStateReceiver, filterNetwork);
-
-    }
-
-    // Once an instance of this interface is set on a MapFragment or MapView object,
-    // the onMapReady(GoogleMap) method is triggered when the map is ready to be used
-    // and provides a non-null instance of GoogleMap.
+    /**
+     * Once an instance of this interface is set on a MapFragment or MapView object,
+     * the onMapReady(GoogleMap) method is triggered when the map is ready to be used
+     * and provides a non-null instance of GoogleMap.
+     * @param googleMap
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setCompassEnabled(false);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
 
         mLocationRequest = new LocationRequest();
-        // Set the interval in which you want to get locations (two seconds interval)
         mLocationRequest.setInterval(2000);
-        // If a location is available sooner you can get it
-        // (i.e. another app is using the location services).
         mLocationRequest.setFastestInterval(2000);
-        // Application wants high accuracy location,
-        // thus it should create a location request with PRIORITY_HIGH_ACCURACY
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        // Check the android version to be API V23 (Marshmallow) and on  to show the permission
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
-                // Location Permission already granted
-                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
-                        Looper.myLooper());
-                mMap.setMyLocationEnabled(false);
+
+                mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                        mLocationCallback, Looper.myLooper());
 
             } else {
-                // Request Location Permission
-                mMap.setMyLocationEnabled(false);
                 checkLocationPermission(MapsActivity.this);
             }
         }
         else {
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
-                    Looper.myLooper());
-            mMap.setMyLocationEnabled(false);
+
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                    mLocationCallback, Looper.myLooper());
 
         }
+        mMap.setMyLocationEnabled(false);
         mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(this));
     }
 
-    private void locationCallback() {
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-
-                // Get a list with locations
-                List<Location> locationList = locationResult.getLocations();
-
-                // If the list is not empty
-                if (locationList.size() > 0) {
-
-                    //The last location in the list is the newest
-                    Location location = locationList.get(locationList.size() - 1);
-
-                    // Replace the last location wit hte new one
-                    mLastLocation = location;
-
-                    // Remove the old marker from the map to add the new
-                    if (mCurrLocationMarker != null)
-                        mCurrLocationMarker.remove();
-
-                    // Set the coordinates to a new LatLng object
-                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                    if(mMap == null)
-                        return;
-
-                    // Set custom location marker
-                    markerOptions = new MarkerOptions();
-                    markerOptions.position(latLng);
-                    markerOptions.anchor(0.5f, 1.0f);
-                    markerOptions.infoWindowAnchor(0.5f, -0.2f);
-                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_marker));
-                    mCurrLocationMarker = mMap.addMarker(markerOptions);
-                    mCurrLocationMarker.showInfoWindow();
-
-                    //move map camera
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
-
-                    // Obtain the address name to display
-                    new AddressObtainTask(MapsActivity.this, MapsActivity.this).execute(latLng);
-                }
-            }
-        };
-    }
-
-    // Called when bounded AddressObtainTask obtains address
+    /**
+     * Called when bounded AddressObtainTask obtains address
+     * @see AddressObtainTask
+     * @param address The address coming as a result from the AddressObtainTask class onPostExecute
+     *                Set this address as a title to the marker
+     */
     @Override
     public void onAddressObtained(@NonNull String address) {
         addressObtainedLock.lock();
         if(mCurrLocationMarker != null) {
+            lastAddress = address;
             mCurrLocationMarker.setTitle(address);
             mCurrLocationMarker.showInfoWindow();
         }
         addressObtainedLock.unlock();
     }
 
-    // This method is called when the user clicks the Bel RSR nu button to make the call
+    /**
+     * Called when the user clicks the button to make the call from the MapActivity
+     * It makes a call only when the app is running on a phone
+     * @param view View is required when calling from XML as it holds the OnClickListener
+     */
     public void onCallButtonClick(View view){
         // It is tablet
         if (findViewById(R.id.call_button) == null){
@@ -279,14 +271,13 @@ public class MapsActivity extends AppCompatActivity
         } else { // It is a phone
             final Button callButton = findViewById(R.id.call_button);
             final RelativeLayout frame = findViewById(R.id.bel_nu_dialog);
-            callButton.setVisibility(View.GONE); // Hide the Bel RSR nu button
-            frame.setVisibility(View.VISIBLE); // Show the frame with the Bel nu button
+            callButton.setVisibility(View.GONE);
+            frame.setVisibility(View.VISIBLE);
 
-            // If the Bel nu frame is open find its views
-            // and set the onClick callback actions for the buttons of the frame
+            // If the call pop-up is open find its views
             if (frame.getVisibility() == View.VISIBLE){
-                Button frameCloseButton = findViewById(R.id.bel_nu_close_button);
-                Button belNuButton = findViewById(R.id.bel_nu_button);
+                final Button frameCloseButton = findViewById(R.id.bel_nu_close_button);
+                final Button belNuButton = findViewById(R.id.bel_nu_button);
                 frameCloseButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -306,4 +297,19 @@ public class MapsActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Called when the back button in MapsActivity toolbar is pressed
+     * @param view View is required when calling from XML as it holds the OnClickListener
+     */
+    public void onBackButtonClick(View view) {
+        Button back = findViewById(R.id.back_button);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
+    }
 }

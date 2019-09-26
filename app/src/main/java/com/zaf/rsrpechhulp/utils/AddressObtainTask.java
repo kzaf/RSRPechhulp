@@ -14,7 +14,9 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Locale;
 
-// An asynchronous task class used to obtain address in String form using Geocoder
+/**
+ * An asynchronous task class used to obtain address in String form using Geo coder
+ */
 public class AddressObtainTask extends AsyncTask<LatLng, Void, String> {
 
     private final WeakReference<Context> contextWeakReference;

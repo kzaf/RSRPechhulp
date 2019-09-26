@@ -4,13 +4,11 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 
 import com.zaf.rsrpechhulp.activities.MapsActivity;
-import com.zaf.rsrpechhulp.utils.PermissionsUtils;
-import com.zaf.rsrpechhulp.utils.Utils;
+import com.zaf.rsrpechhulp.utils.PermissionAlertDialogUtils;
 
 public class ConnectionBroadcastReceiver extends BroadcastReceiver {
     private MapsActivity hostActivity;
@@ -43,10 +41,10 @@ public class ConnectionBroadcastReceiver extends BroadcastReceiver {
         }
 
         if (isGpsEnabled || isNetworkEnabled || wifi || mobile) {
-            hostActivity.lastAlertDialog = PermissionsUtils.checkGPSAndInternetAvailability
+            hostActivity.lastAlertDialog = PermissionAlertDialogUtils.checkGPSAndInternetAvailability
                     (hostActivity.lastAlertDialog, hostActivity);
         } else {
-            hostActivity.lastAlertDialog = PermissionsUtils.checkGPSAndInternetAvailability
+            hostActivity.lastAlertDialog = PermissionAlertDialogUtils.checkGPSAndInternetAvailability
                     (hostActivity.lastAlertDialog, hostActivity);
         }
 

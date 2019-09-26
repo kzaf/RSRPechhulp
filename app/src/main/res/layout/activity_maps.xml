@@ -17,10 +17,10 @@
 
         <Button
             android:id="@+id/back_button"
+            style="@style/ButtonToolbar"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            style="@style/ButtonToolbar">
-        </Button>
+            android:onClick="onBackButtonClick"/>
 
     </androidx.appcompat.widget.Toolbar>
 
