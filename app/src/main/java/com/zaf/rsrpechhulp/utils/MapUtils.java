@@ -1,10 +1,14 @@
 package com.zaf.rsrpechhulp.utils;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Looper;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -20,17 +24,19 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.zaf.rsrpechhulp.R;
+import com.zaf.rsrpechhulp.activities.MainActivity;
 import com.zaf.rsrpechhulp.activities.MapsActivity;
 
 import java.util.List;
 
 import static com.zaf.rsrpechhulp.utils.PermissionCheck.checkLocationPermission;
+import static com.zaf.rsrpechhulp.utils.PermissionCheck.checkPhonePermission;
 import static com.zaf.rsrpechhulp.utils.Utilities.dialIfAvailable;
 
 public class MapUtils {
 
-    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    private static final int MY_PERMISSIONS_REQUEST_PHONE = 98;
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public static final int MY_PERMISSIONS_REQUEST_PHONE = 98;
 
     private static GoogleMap mMap;
     private static LocationRequest mLocationRequest;
@@ -176,7 +182,6 @@ public class MapUtils {
         }
     }
 
-
     /**
      * @param address
      */
@@ -189,4 +194,50 @@ public class MapUtils {
         }
     }
 
+    public static void callButtonClick(final MapsActivity mapsActivity) {
+        // It is tablet
+        if (mapsActivity.findViewById(R.id.call_button) == null){
+            if(checkPhonePermission(mapsActivity)){
+                dialIfAvailable(mapsActivity, mapsActivity.getString(R.string.phone));
+            }
+        } else { // It is a phone
+            final Button callButton = mapsActivity.findViewById(R.id.call_button);
+            final RelativeLayout frame = mapsActivity.findViewById(R.id.bel_nu_dialog);
+            callButton.setVisibility(View.GONE);
+            frame.setVisibility(View.VISIBLE);
+
+            // If the call pop-up is open find its views
+            if (frame.getVisibility() == View.VISIBLE){
+                final Button frameCloseButton = mapsActivity.findViewById(R.id.bel_nu_close_button);
+                final Button belNuButton = mapsActivity.findViewById(R.id.bel_nu_button);
+                frameCloseButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        callButton.setVisibility(View.VISIBLE);
+                        frame.setVisibility(View.GONE);
+                    }
+                });
+                belNuButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(checkPhonePermission(mapsActivity)){
+                            dialIfAvailable(mapsActivity, mapsActivity.getString(R.string.phone));
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    public static void backButtonClick(final MapsActivity mapsActivity) {
+        Button back = mapsActivity.findViewById(R.id.back_button);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mapsActivity.getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                mapsActivity.startActivity(intent);
+            }
+        });
+    }
 }

@@ -2,11 +2,8 @@ package com.zaf.rsrpechhulp.activities;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,8 +23,6 @@ import com.zaf.rsrpechhulp.utils.Utilities;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.zaf.rsrpechhulp.utils.PermissionAlertDialogUtils.checkGPSAndInternetAvailability;
-import static com.zaf.rsrpechhulp.utils.PermissionCheck.checkPhonePermission;
-import static com.zaf.rsrpechhulp.utils.Utilities.dialIfAvailable;
 
 /**
  * Google’s LocationServices API is the one which is actually used to access device location.
@@ -133,7 +128,6 @@ public class MapsActivity extends AppCompatActivity
      */
     @Override
     public void onAddressObtained(@NonNull String address) {
-
         addressObtainedLock.lock();
         MapUtils.setUpMarkerAddress(address);
         addressObtainedLock.unlock();
@@ -145,39 +139,7 @@ public class MapsActivity extends AppCompatActivity
      * @param view View is required when calling from XML as it holds the OnClickListener
      */
     public void onCallButtonClick(View view){
-
-        // It is tablet
-        if (findViewById(R.id.call_button) == null){
-            if(checkPhonePermission(MapsActivity.this)){
-                dialIfAvailable(MapsActivity.this, getString(R.string.phone));
-            }
-        } else { // It is a phone
-            final Button callButton = findViewById(R.id.call_button);
-            final RelativeLayout frame = findViewById(R.id.bel_nu_dialog);
-            callButton.setVisibility(View.GONE);
-            frame.setVisibility(View.VISIBLE);
-
-            // If the call pop-up is open find its views
-            if (frame.getVisibility() == View.VISIBLE){
-                final Button frameCloseButton = findViewById(R.id.bel_nu_close_button);
-                final Button belNuButton = findViewById(R.id.bel_nu_button);
-                frameCloseButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        callButton.setVisibility(View.VISIBLE);
-                        frame.setVisibility(View.GONE);
-                    }
-                });
-                belNuButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(checkPhonePermission(MapsActivity.this)){
-                            dialIfAvailable(MapsActivity.this, getString(R.string.phone));
-                        }
-                    }
-                });
-            }
-        }
+        MapUtils.callButtonClick(this);
     }
 
     /**
@@ -185,15 +147,7 @@ public class MapsActivity extends AppCompatActivity
      * @param view View is required when calling from XML as it holds the OnClickListener
      */
     public void onBackButtonClick(View view) {
-
-        Button back = findViewById(R.id.back_button);
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-            }
-        });
+        MapUtils.backButtonClick(this);
     }
+
 }
