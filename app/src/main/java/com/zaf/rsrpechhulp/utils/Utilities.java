@@ -1,5 +1,6 @@
 package com.zaf.rsrpechhulp.utils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -7,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -21,19 +21,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.zaf.rsrpechhulp.R;
-import com.zaf.rsrpechhulp.activities.MainActivity;
 import com.zaf.rsrpechhulp.activities.MapsActivity;
-
-import java.util.List;
 
 public class Utilities {
 
@@ -49,12 +41,12 @@ public class Utilities {
         int ofe = tvt.indexOf(textToHighlight);
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
-            public void onClick(View textView) {
+            public void onClick(@NonNull View textView) {
                 if (onClickListener != null) onClickListener.onClick(textView);
             }
 
             @Override
-            public void updateDrawState(TextPaint ds) {
+            public void updateDrawState(@NonNull TextPaint ds) {
                 super.updateDrawState(ds);
                 ds.setColor(tv.getContext().getResources().getColor(R.color.colorPrimary));
                 ds.setUnderlineText(true);
@@ -83,7 +75,7 @@ public class Utilities {
      * ACTION_CALL directly calls the number instead of CALL_PHONE
      * where first it displays the number in the dialer
      */
-    public static void dialIfAvailable(Context context, String phoneNumber) {
+    static void dialIfAvailable(Context context, String phoneNumber) {
         Intent dialIntent = new Intent(Intent.ACTION_CALL);
         dialIntent.setData(Uri.parse("tel:" + phoneNumber));
         if (context.getPackageManager().queryIntentActivities(dialIntent, 0).size() > 0) {
@@ -101,6 +93,7 @@ public class Utilities {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
+        @SuppressLint("InflateParams")
         View customLayout = activity.getLayoutInflater().inflate(R.layout.dialog_layout, null);
 
         TextView dialogTextTextView = customLayout.findViewById(R.id.dialog_text);

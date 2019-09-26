@@ -56,12 +56,11 @@ public class MapsActivity extends AppCompatActivity
         setContentView(R.layout.activity_maps);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        SupportMapFragment mapFragment
-                = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
-        if (mapFragment != null) {
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        if (mapFragment != null)
             mapFragment.getMapAsync(this);
-        }
 
         addressObtainedLock = new ReentrantLock();
     }
@@ -99,7 +98,8 @@ public class MapsActivity extends AppCompatActivity
      * Once an instance of this interface is set on a MapFragment or MapView object,
      * the onMapReady(GoogleMap) method is triggered when the map is ready to be used
      * and provides a non-null instance of GoogleMap.
-     * @param googleMap
+     * @see <a href="https://developers.google.com/android/reference/com/google/android/gms/maps/OnMapReadyCallback">OnMapReadyCallback</a>
+     * @param googleMap The main class of the Google Maps SDK for Android
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -108,9 +108,13 @@ public class MapsActivity extends AppCompatActivity
 
     /**
      * Called when the user selects allow or deny on a permission window
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
+     * @see <a href="https://developer.android.com/reference/android/support/v4/app/ActivityCompat.OnRequestPermissionsResultCallback">ActivityCompat.OnRequestPermissionsResultCallback</a>
+     *
+     * @param requestCode The request code passed in
+     *                    requestPermissions(android.app.Activity, String[], int)
+     * @param permissions The requested permissions. Never null.
+     * @param grantResults The grant results for the corresponding permissions
+     *                     which is either PERMISSION_GRANTED or PERMISSION_DENIED. Never null.
      */
     @Override
     public void onRequestPermissionsResult(
