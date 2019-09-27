@@ -17,8 +17,10 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -28,6 +30,7 @@ import com.zaf.rsrpechhulp.activities.MainActivity;
 import com.zaf.rsrpechhulp.activities.MapsActivity;
 
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MapUtils {
 
@@ -43,8 +46,19 @@ public class MapUtils {
     private static Marker mCurrLocationMarker;
 
     /**
+     * Register the FusedLocationProviderClient
+     * called every time the activity resumes {@see MapsActivity#onResume()}
+     *
+     * @param mapsActivity The required context
+     * @return Returns an instance of FusedLocationProviderClient
+     */
+    public static FusedLocationProviderClient registerFusedLocationClient(MapsActivity mapsActivity) {
+        return LocationServices.getFusedLocationProviderClient(mapsActivity);
+    }
+
+    /**
      * Set up the Google Map the first time the MapsActivity loads.
-     * It is called inside {@link com.zaf.rsrpechhulp.activities.MapsActivity#onMapReady(GoogleMap)}
+     * It is called inside {@link MapsActivity#onMapReady(GoogleMap)}
      *
      * @param googleMap The main class of the Google Maps SDK for Android
      * @param mFusedLocationClient Manages the underlying location technology and provides

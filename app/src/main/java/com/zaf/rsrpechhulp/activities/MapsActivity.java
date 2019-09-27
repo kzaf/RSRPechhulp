@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -39,13 +38,7 @@ public class MapsActivity extends AppCompatActivity
     private BroadcastReceiver connectionStateReceiver = new ConnectionBroadcastReceiver(this);
 
     /**
-     * Activitys lifecycle method
-     * A ReentrantLock is owned by the thread last successfully locking,
-     * but not yet unlocking'it. A thread invoking lock will return,
-     * successfully acquiring the lock, when the lock is not owned by another thread.
-     * The method will return immediately if the current thread already owns the lock.
-     *
-     * See <a href="https://developer.android.com/reference/java/util/concurrent/locks/ReentrantLock">ReentrantLock</a>
+     * Activity's lifecycle method
      *
      * @param savedInstanceState Default parameter for onCreate method.
      *                     It can be passed back to onCreate if the activity needs to be recreated
@@ -54,19 +47,17 @@ public class MapsActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        if (mapFragment != null)
-            mapFragment.getMapAsync(this);
-
-        addressObtainedLock = new ReentrantLock();
     }
 
     /**
      * Activity's lifecycle method
+     *
+     * A ReentrantLock is owned by the thread last successfully locking,
+     * but not yet unlocking'it. A thread invoking lock will return,
+     * successfully acquiring the lock, when the lock is not owned by another thread.
+     * The method will return immediately if the current thread already owns the lock.
+     * See <a href="https://developer.android.com/reference/java/util/concurrent/locks/ReentrantLock">ReentrantLock</a>
+     *
      * Check connectivity status on Activity start
      * Register the Broadcast Receivers for the connection check
      */
@@ -74,12 +65,22 @@ public class MapsActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
+        mFusedLocationClient = MapUtils.registerFusedLocationClient(this);
+
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        if (mapFragment != null)
+            mapFragment.getMapAsync(this);
+
+        addressObtainedLock = new ReentrantLock();
+
         lastAlertDialog = AlertDialogUtils.alertCheckConnectivityAvailability(lastAlertDialog, MapsActivity.this);
         Utilities.registerReceivers(this, connectionStateReceiver);
 
         mLocationCallback = MapUtils.getLocation(this);
 
     }
+
 
     /**
      * Activity's lifecycle method
@@ -94,6 +95,7 @@ public class MapsActivity extends AppCompatActivity
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
 
         this.unregisterReceiver(connectionStateReceiver);
+
     }
 
     /**
