@@ -2,10 +2,8 @@ package com.zaf.rsrpechhulp.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.LocationManager;
@@ -30,6 +28,39 @@ import com.zaf.rsrpechhulp.activities.MapsActivity;
 public class Utilities {
 
     /**
+     * Setup the custom Layout in the privacy policy Alert Dialog
+     * Selected Intent.CATEGORY_BROWSABLE category so it opens directly on a browser
+     * @param activity The activity that hosts the Alert Dialog
+     * @return The custom Layout (View) for the privacy policy Alert Dialog
+     */
+    static View setPrivacyDialogLayout(final Activity activity) {
+        @SuppressLint("InflateParams")
+        View customLayout = activity.getLayoutInflater().inflate(R.layout.dialog_layout, null);
+
+        TextView dialogTextTextView = customLayout.findViewById(R.id.dialog_text);
+        dialogTextTextView.setText(activity.getResources().getString(R.string.privacy_dialog_text));
+
+        if (dialogTextTextView.getText().toString().contains(activity.getResources().
+                getString(R.string.privacy_dialog_privacy_policy_hyperlink_text))) {
+            Utilities.setClickableHighlightedText(dialogTextTextView, activity.getResources().
+                            getString(R.string.privacy_dialog_privacy_policy_hyperlink_text)
+                    , new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent();
+                            intent.setAction(Intent.ACTION_VIEW);
+                            intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                            intent.setData(Uri.parse(activity.getResources().
+                                    getString(R.string.privacy_dialog_hyperlink)));
+                            activity.getApplicationContext().startActivity(intent);
+                        }
+                    });
+        }
+        return customLayout;
+    }
+
+    /**
+     * The action that happens when the user clicks the hyperlink in privacy policy Alert Dialog
      * Highlights a selected text as hyperlink.
      * @param tv the TextView that contains the hyperlink
      * @param textToHighlight the TextView that will be highlighted
@@ -83,52 +114,6 @@ public class Utilities {
         }
     }
 
-    /**
-     * Creates and shows an Alert Dialog for the privacy policy information
-     * Contains a hyperlink which when it's clicked, opens the website in a browser
-     * Selected Intent.CATEGORY_BROWSABLE category so it opens directly on a browser
-     * @param activity The activity that hosts the Dialog
-     */
-    private static void showAlertDialogButtonClicked(final Activity activity) {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-
-        @SuppressLint("InflateParams")
-        View customLayout = activity.getLayoutInflater().inflate(R.layout.dialog_layout, null);
-
-        TextView dialogTextTextView = customLayout.findViewById(R.id.dialog_text);
-        dialogTextTextView.setText(activity.getResources().getString(R.string.privacy_dialog_text));
-
-        if (dialogTextTextView.getText().toString().contains(activity.getResources().
-                getString(R.string.privacy_dialog_privacy_policy_hyperlink_text))) {
-            Utilities.setClickableHighlightedText(dialogTextTextView, activity.getResources().
-                            getString(R.string.privacy_dialog_privacy_policy_hyperlink_text)
-                    , new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent intent = new Intent();
-                            intent.setAction(Intent.ACTION_VIEW);
-                            intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                            intent.setData(Uri.parse(activity.getResources().
-                                    getString(R.string.privacy_dialog_hyperlink)));
-                            activity.getApplicationContext().startActivity(intent);
-                        }
-                    });
-        }
-
-        builder.setCancelable(false);
-        builder.setView(customLayout);
-        builder.setPositiveButton(activity.getResources().getString(R.string.privacy_dialog_confirm),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
 
     /**
      * When the app is running on a tablet, the system reads from the sw600dp folder
@@ -142,7 +127,7 @@ public class Utilities {
             infoTablet.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showAlertDialogButtonClicked(activity);
+                    AlertDialogUtils.alertPrivacyPolicy(activity);
                 }
             });
         }else{
@@ -152,7 +137,7 @@ public class Utilities {
                 @Override
                 public boolean onMenuItemClick(MenuItem menuItem) {
                     if(menuItem.getItemId()== R.id.info_button) {
-                        showAlertDialogButtonClicked(activity);
+                        AlertDialogUtils.alertPrivacyPolicy(activity);
                     }
                     return false;
                 }

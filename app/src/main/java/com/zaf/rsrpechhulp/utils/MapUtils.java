@@ -29,14 +29,10 @@ import com.zaf.rsrpechhulp.activities.MapsActivity;
 
 import java.util.List;
 
-import static com.zaf.rsrpechhulp.utils.PermissionCheck.checkLocationPermission;
-import static com.zaf.rsrpechhulp.utils.PermissionCheck.checkPhonePermission;
-import static com.zaf.rsrpechhulp.utils.Utilities.dialIfAvailable;
-
 public class MapUtils {
 
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    public static final int MY_PERMISSIONS_REQUEST_PHONE = 98;
+    static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    static final int MY_PERMISSIONS_REQUEST_PHONE = 98;
 
     private static GoogleMap mMap;
     private static LocationRequest mLocationRequest;
@@ -47,10 +43,15 @@ public class MapUtils {
     private static Marker mCurrLocationMarker;
 
     /**
-     * @param googleMap
-     * @param mFusedLocationClient
-     * @param mLocationCallback
-     * @param mapsActivity
+     * Set up the Google Map the first time the MapsActivity loads.
+     * It is called inside {@link com.zaf.rsrpechhulp.activities.MapsActivity#onMapReady(GoogleMap)}
+     *
+     * @param googleMap The main class of the Google Maps SDK for Android
+     * @param mFusedLocationClient Manages the underlying location technology and provides
+     *                             a simple API so that you can specify requirements at a high level
+     * @param mLocationCallback Used for receiving notifications from the FusedLocationProviderApi
+     *                          when the device location has changed or can no longer be determined.
+     * @param mapsActivity The context
      */
     public static void setUpMap(
             GoogleMap googleMap, FusedLocationProviderClient mFusedLocationClient,
@@ -71,9 +72,17 @@ public class MapUtils {
     }
 
     /**
-     * @param mFusedLocationClient
-     * @param mapsActivity
-     * @param mLocationCallback
+     * Gets location updates via the FusedLocationProviderClient
+     * It is called inside :
+     * {@link #setUpMap(GoogleMap, FusedLocationProviderClient, LocationCallback, MapsActivity)}
+     * {@link #checkPermissionRequestCode(
+     * MapsActivity, int, int[],FusedLocationProviderClient, LocationCallback)}
+     *
+     * @param mFusedLocationClient Manages the underlying location technology and provides
+     *                             a simple API so that you can specify requirements at a high level
+     * @param mapsActivity The context needed for checkSelfPermission
+     * @param mLocationCallback Used for receiving notifications from the FusedLocationProviderApi
+     *                          when the device location has changed or can no longer be determined.
      */
     private static void getLocationUpdates(
             FusedLocationProviderClient mFusedLocationClient,
@@ -83,10 +92,11 @@ public class MapUtils {
             if (ContextCompat.checkSelfPermission(
                     mapsActivity, Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
+
                 mFusedLocationClient.requestLocationUpdates(
                         mLocationRequest, mLocationCallback, Looper.myLooper());
             } else {
-                checkLocationPermission(mapsActivity);
+                PermissionCheck.checkLocationPermission(mapsActivity);
             }
         }
         else {
@@ -99,8 +109,12 @@ public class MapUtils {
     }
 
     /**
-     * @param mapsActivity
-     * @return
+     * Gets the location via the LocationCallback
+     *
+     * @param mapsActivity The context needed for the {@link AddressObtainTask}
+     * @return The LocationCallback. Used for receiving notifications from
+     *         the FusedLocationProviderApi when the device location has changed
+     *         or can no longer be determined.
      */
     public static LocationCallback getLocation(final MapsActivity mapsActivity) {
 
@@ -143,11 +157,17 @@ public class MapUtils {
     }
 
     /**
-     * @param mapsActivity
-     * @param requestCode
-     * @param grantResults
-     * @param mFusedLocationClient
-     * @param mLocationCallback
+     * Checks the permission request code when the user clicks the allow button on
+     * the permission dialog in {@link MapsActivity#onRequestPermissionsResult}
+     *
+     * @param mapsActivity The context
+     * @param requestCode The request code (location or network)
+     * @param grantResults An array to check if the respective permissions are already granted.
+     *                     If it is not empty, the permissions are granted already.
+     * @param mFusedLocationClient Manages the underlying location technology and provides
+     *                             a simple API so that you can specify requirements at a high level
+     * @param mLocationCallback Used for receiving notifications from the FusedLocationProviderApi
+     *                          when the device location has changed or can no longer be determined.
      */
     public static void checkPermissionRequestCode(
             MapsActivity mapsActivity, int requestCode, @NonNull int[] grantResults,
@@ -176,14 +196,17 @@ public class MapUtils {
                 if (grantResults.length > 0 && grantResults[0]
                         == PackageManager.PERMISSION_GRANTED) {
 
-                    dialIfAvailable(mapsActivity, mapsActivity.getString(R.string.phone));
+                    Utilities.dialIfAvailable(mapsActivity, mapsActivity.getString(R.string.phone));
                 }
             }
         }
     }
 
     /**
-     * @param address
+     * Sets the current fetched address from {@link MapsActivity#onAddressObtained}
+     * to the Marker's info window
+     *
+     * @param address The current address fetched from {@link MapsActivity#onAddressObtained}
      */
     public static void setUpMarkerAddress(@NonNull String address) {
 
@@ -194,11 +217,18 @@ public class MapUtils {
         }
     }
 
+    /**
+     * Makes a call to a specific number
+     * It makes a call only when the app is running on a phone
+     * Called inside {@link MapsActivity#onCallButtonClick(View)}
+     *
+     * @param mapsActivity The context
+     */
     public static void callButtonClick(final MapsActivity mapsActivity) {
         // It is tablet
         if (mapsActivity.findViewById(R.id.call_button) == null){
-            if(checkPhonePermission(mapsActivity)){
-                dialIfAvailable(mapsActivity, mapsActivity.getString(R.string.phone));
+            if(PermissionCheck.checkPhonePermission(mapsActivity)){
+                Utilities.dialIfAvailable(mapsActivity, mapsActivity.getString(R.string.phone));
             }
         } else { // It is a phone
             final Button callButton = mapsActivity.findViewById(R.id.call_button);
@@ -220,8 +250,8 @@ public class MapUtils {
                 belNuButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(checkPhonePermission(mapsActivity)){
-                            dialIfAvailable(mapsActivity, mapsActivity.getString(R.string.phone));
+                        if(PermissionCheck.checkPhonePermission(mapsActivity)){
+                            Utilities.dialIfAvailable(mapsActivity, mapsActivity.getString(R.string.phone));
                         }
                     }
                 });
@@ -229,6 +259,17 @@ public class MapUtils {
         }
     }
 
+    /**
+     * Starts Main Activity when a button is clicked using (FLAG_ACTIVITY_CLEAR_TOP)
+     *
+     * If the activity being launched is already running in the current task, then instead
+     * of launching a new instance of that activity, all of the other activities on top of it
+     * will be closed and this Intent will be delivered to the (now on top) old activity as
+     * a new Intent.
+     * Called inside {@link MapsActivity#onBackButtonClick(View)}
+     *
+     * @param mapsActivity The context
+     */
     public static void backButtonClick(final MapsActivity mapsActivity) {
         Button back = mapsActivity.findViewById(R.id.back_button);
         back.setOnClickListener(new View.OnClickListener() {

@@ -8,7 +8,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 
 import com.zaf.rsrpechhulp.activities.MapsActivity;
-import com.zaf.rsrpechhulp.utils.PermissionAlertDialogUtils;
+import com.zaf.rsrpechhulp.utils.AlertDialogUtils;
 
 public class ConnectionBroadcastReceiver extends BroadcastReceiver {
     private MapsActivity hostActivity;
@@ -41,10 +41,10 @@ public class ConnectionBroadcastReceiver extends BroadcastReceiver {
         }
 
         if (isGpsEnabled || isNetworkEnabled || wifi || mobile) {
-            hostActivity.lastAlertDialog = PermissionAlertDialogUtils.checkGPSAndInternetAvailability
+            hostActivity.lastAlertDialog = AlertDialogUtils.alertCheckConnectivityAvailability
                     (hostActivity.lastAlertDialog, hostActivity);
         } else {
-            hostActivity.lastAlertDialog = PermissionAlertDialogUtils.checkGPSAndInternetAvailability
+            hostActivity.lastAlertDialog = AlertDialogUtils.alertCheckConnectivityAvailability
                     (hostActivity.lastAlertDialog, hostActivity);
         }
 

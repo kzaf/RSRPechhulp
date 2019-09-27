@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * An asynchronous task class used to obtain address in String form using Geo coder
+ * An asynchronous task class used to obtain address in String form using Geo coder.
  */
 public class AddressObtainTask extends AsyncTask<LatLng, Void, String> {
 

@@ -1,18 +1,16 @@
 package com.zaf.rsrpechhulp.utils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.provider.Settings;
+import android.view.View;
 
 import com.zaf.rsrpechhulp.R;
 
-public class PermissionAlertDialogUtils {
+public class AlertDialogUtils {
 
     private static final String LOCATION = "location";
     private static final String NETWORK = "network";
@@ -28,13 +26,13 @@ public class PermissionAlertDialogUtils {
      * @return An Alert Dialog according to the location or network connectivity.
      *         If both are connected, hides the last Alert Dialog.
      */
-    public static AlertDialog checkGPSAndInternetAvailability(
+    public static AlertDialog alertCheckConnectivityAvailability(
             AlertDialog lastAlertDialog, final Activity activity) {
 
-        if(!checkLocationConnectivity(activity))
-            (lastAlertDialog = alertNoLocationOrNetworkConnectivity(activity, LOCATION)).show();
-        else if(!checkNetworkConnectivity(activity)){
-            (lastAlertDialog = alertNoLocationOrNetworkConnectivity(activity, NETWORK)).show();
+        if(!ConnectivityCheck.checkLocationConnectivity(activity))
+            (lastAlertDialog = alertNoConnectivity(activity, LOCATION)).show();
+        else if(!ConnectivityCheck.checkNetworkConnectivity(activity)){
+            (lastAlertDialog = alertNoConnectivity(activity, NETWORK)).show();
         }
         else {
             if(lastAlertDialog != null && lastAlertDialog.isShowing())
@@ -51,7 +49,7 @@ public class PermissionAlertDialogUtils {
      * @param connectivity The type of connectivity to which the Dialog will be shown
      * @return Returns an alert dialog according to the connectivity
      */
-    private static android.app.AlertDialog alertNoLocationOrNetworkConnectivity(
+    private static android.app.AlertDialog alertNoConnectivity(
             final Activity activity, String connectivity) {
 
         int alertMessage;
@@ -68,10 +66,7 @@ public class PermissionAlertDialogUtils {
             action = Settings.ACTION_WIFI_SETTINGS;
         }
 
-        final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.
-                Builder(activity);
-
-        builder.setMessage(alertMessage)
+        return new android.app.AlertDialog.Builder(activity).setMessage(alertMessage)
                 .setTitle(alertTitle)
                 .setCancelable(false)
                 .setPositiveButton(R.string.error_accept, new DialogInterface.OnClickListener() {
@@ -87,36 +82,36 @@ public class PermissionAlertDialogUtils {
                         dialogInterface.dismiss();
                         activity.finish();
                     }
+                }).create();
+    }
+
+    /**
+     * Creates and shows an Alert Dialog for the privacy policy information
+     * Contains a hyperlink which when it's clicked, opens the website in a browser
+     * @param activity The activity that hosts the Dialog
+     */
+    static void alertPrivacyPolicy(final Activity activity) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+        @SuppressLint("InflateParams")
+        View customLayout = Utilities.setPrivacyDialogLayout(activity);
+
+        builder.setCancelable(false);
+        builder.setView(customLayout);
+        builder.setPositiveButton(activity.getResources().getString(
+                R.string.privacy_dialog_confirm),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
                 });
-        return builder.create();
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
-    /**
-     * Checks if GPS location provider is enabled
-     * @param context The activity (context)
-     * @return True or false according to the connectivity status
-     */
-    private static boolean checkLocationConnectivity(Context context) {
-        final LocationManager locationManager = (LocationManager)
-                context.getSystemService(Context.LOCATION_SERVICE);
-
-        return locationManager != null &&
-                locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    }
-
-    /**
-     * Checks if currently active network is connected or connecting to Internet
-     * @param context The activity (context)
-     * @return True or false according to the connectivity status
-     */
-    private static boolean checkNetworkConnectivity(Context context) {
-
-        final NetworkInfo activeNetworkInfo = ((ConnectivityManager)
-                context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-
-        return activeNetworkInfo != null
-                && activeNetworkInfo.isConnectedOrConnecting();
-    }
 
 
 }

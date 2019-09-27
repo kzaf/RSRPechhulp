@@ -17,12 +17,11 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.zaf.rsrpechhulp.R;
 import com.zaf.rsrpechhulp.receivers.ConnectionBroadcastReceiver;
 import com.zaf.rsrpechhulp.utils.AddressObtainTask;
+import com.zaf.rsrpechhulp.utils.AlertDialogUtils;
 import com.zaf.rsrpechhulp.utils.MapUtils;
 import com.zaf.rsrpechhulp.utils.Utilities;
 
 import java.util.concurrent.locks.ReentrantLock;
-
-import static com.zaf.rsrpechhulp.utils.PermissionAlertDialogUtils.checkGPSAndInternetAvailability;
 
 /**
  * Google’s LocationServices API is the one which is actually used to access device location.
@@ -40,8 +39,9 @@ public class MapsActivity extends AppCompatActivity
     private BroadcastReceiver connectionStateReceiver = new ConnectionBroadcastReceiver(this);
 
     /**
+     * Activitys lifecycle method
      * A ReentrantLock is owned by the thread last successfully locking,
-     * but not yet unlocking it. A thread invoking lock will return,
+     * but not yet unlocking'it. A thread invoking lock will return,
      * successfully acquiring the lock, when the lock is not owned by another thread.
      * The method will return immediately if the current thread already owns the lock.
      *
@@ -66,6 +66,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
     /**
+     * Activity's lifecycle method
      * Check connectivity status on Activity start
      * Register the Broadcast Receivers for the connection check
      */
@@ -73,7 +74,7 @@ public class MapsActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        lastAlertDialog = checkGPSAndInternetAvailability(lastAlertDialog, MapsActivity.this);
+        lastAlertDialog = AlertDialogUtils.alertCheckConnectivityAvailability(lastAlertDialog, MapsActivity.this);
         Utilities.registerReceivers(this, connectionStateReceiver);
 
         mLocationCallback = MapUtils.getLocation(this);
@@ -81,6 +82,7 @@ public class MapsActivity extends AppCompatActivity
     }
 
     /**
+     * Activity's lifecycle method
      * Stop location updates when Activity is no longer active
      * Unregister the Broadcast Receivers when the app is on background
      */

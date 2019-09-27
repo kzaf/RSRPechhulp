@@ -12,6 +12,7 @@ import com.zaf.rsrpechhulp.utils.Utilities;
 public class MainActivity extends AppCompatActivity {
 
     /**
+     * Activity's lifecycle method
      * When the activity starts, set the default theme so the Splash Screen to be replaced
      * @param savedInstanceState Default parameter for onCreate method.
      *                     It can be passed back to onCreate if the activity needs to be recreated

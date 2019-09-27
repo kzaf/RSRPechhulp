@@ -10,10 +10,6 @@ import androidx.core.content.ContextCompat;
 
 import com.zaf.rsrpechhulp.activities.MapsActivity;
 
-import static com.zaf.rsrpechhulp.utils.MapUtils.MY_PERMISSIONS_REQUEST_LOCATION;
-import static com.zaf.rsrpechhulp.utils.MapUtils.MY_PERMISSIONS_REQUEST_PHONE;
-
-
 class PermissionCheck {
 
     /**
@@ -27,7 +23,7 @@ class PermissionCheck {
 
             ActivityCompat.requestPermissions(mapsActivity,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_LOCATION );
+                    MapUtils.MY_PERMISSIONS_REQUEST_LOCATION );
 
         }
     }
@@ -46,7 +42,7 @@ class PermissionCheck {
             } else {
                 ActivityCompat.requestPermissions(mapsActivity,
                         new String[]{Manifest.permission.CALL_PHONE},
-                        MY_PERMISSIONS_REQUEST_PHONE);
+                        MapUtils.MY_PERMISSIONS_REQUEST_PHONE);
                 return false;
             }
         }
