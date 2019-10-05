@@ -8,7 +8,7 @@ import android.os.Build;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.zaf.rsrpechhulp.activities.MapsActivity;
+import com.zaf.rsrpechhulp.MapsActivity;
 
 class PermissionCheck {
 

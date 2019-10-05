@@ -1,4 +1,4 @@
-package com.zaf.rsrpechhulp.activities;
+package com.zaf.rsrpechhulp;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -13,12 +13,15 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.zaf.rsrpechhulp.R;
+import com.zaf.rsrpechhulp.models.MapsActivityInteractor;
+import com.zaf.rsrpechhulp.models.MapsActivityInteractorImpl;
+import com.zaf.rsrpechhulp.presenter.MapsActivityPresenter;
 import com.zaf.rsrpechhulp.receivers.ConnectionBroadcastReceiver;
 import com.zaf.rsrpechhulp.utils.AddressObtainTask;
 import com.zaf.rsrpechhulp.utils.AlertDialogUtils;
 import com.zaf.rsrpechhulp.utils.MapUtils;
 import com.zaf.rsrpechhulp.utils.Utilities;
+import com.zaf.rsrpechhulp.view.MapsActivityView;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -28,7 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * With FusedLocationProviderApi it was our responsibility to initiate and manage the connection.
  */
 public class MapsActivity extends AppCompatActivity
-        implements OnMapReadyCallback, AddressObtainTask.Callback {
+        implements OnMapReadyCallback, AddressObtainTask.Callback, MapsActivityView {
 
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
@@ -36,6 +39,9 @@ public class MapsActivity extends AppCompatActivity
     public AlertDialog lastAlertDialog;
 
     private BroadcastReceiver connectionStateReceiver = new ConnectionBroadcastReceiver(this);
+
+    MapsActivityInteractor interactor; // Model
+    private MapsActivityPresenter presenter; // Presenter
 
     /**
      * Activity's lifecycle method
@@ -47,6 +53,11 @@ public class MapsActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        interactor = new MapsActivityInteractorImpl(); // Model
+
+        presenter = new MapsActivityPresenter(interactor); // Presenter
+        presenter.bind(this); // Presenter
     }
 
     /**
@@ -112,7 +123,8 @@ public class MapsActivity extends AppCompatActivity
 
     /**
      * Called when the user selects allow or deny on a permission window
-     * @see <a href="https://developer.android.com/reference/android/support/v4/app/ActivityCompat.OnRequestPermissionsResultCallback">ActivityCompat.OnRequestPermissionsResultCallback</a>
+     * @see <a href="https://developer.android.com/reference/android/support/v4/app/ActivityCompat.OnRequestPermissionsResultCallback">
+     *     ActivityCompat.OnRequestPermissionsResultCallback</a>
      *
      * @param requestCode The request code passed in
      *                    requestPermissions(android.app.Activity, String[], int)
@@ -146,7 +158,8 @@ public class MapsActivity extends AppCompatActivity
      * It makes a call only when the app is running on a phone
      * @param view View is required when calling from XML as it holds the OnClickListener
      */
-    public void onCallButtonClick(View view){
+    @Override
+    public void onCallButtonClick(View view){ // View
         MapUtils.callButtonClick(this);
     }
 
@@ -154,8 +167,8 @@ public class MapsActivity extends AppCompatActivity
      * Called when the back button in MapsActivity toolbar is pressed
      * @param view View is required when calling from XML as it holds the OnClickListener
      */
-    public void onBackButtonClick(View view) {
+    @Override
+    public void onBackButtonClick(View view) { // View
         MapUtils.backButtonClick(this);
     }
-
 }

@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 
-import com.zaf.rsrpechhulp.activities.MapsActivity;
+import com.zaf.rsrpechhulp.MapsActivity;
 import com.zaf.rsrpechhulp.utils.AlertDialogUtils;
 
 public class ConnectionBroadcastReceiver extends BroadcastReceiver {

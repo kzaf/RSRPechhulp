@@ -23,7 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
 import com.zaf.rsrpechhulp.R;
-import com.zaf.rsrpechhulp.activities.MapsActivity;
+import com.zaf.rsrpechhulp.MapsActivity;
 
 public class Utilities {
 
