@@ -14,8 +14,8 @@ import com.zaf.rsrpechhulp.view.MainActivityView;
 
 public class MainActivity extends AppCompatActivity implements MainActivityView {
 
-    MainActivityInteractor interactor; // Model
-    private MainActivityPresenter presenter; // Presenter
+    MainActivityInteractor interactor;
+    private MainActivityPresenter presenter;
 
     /**
      * Activity's lifecycle method
@@ -31,12 +31,16 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
         Utilities.mainActivityToolbarOptions(this);
 
-        interactor = new MainActivityInteractorImpl(); // Model
+        interactor = new MainActivityInteractorImpl();
 
-        presenter = new MainActivityPresenter(interactor); // Presenter
-        presenter.bind(this); // Presenter
+        presenter = new MainActivityPresenter(interactor);
+        presenter.bind(this);
     }
 
+    /**
+     * Activity's lifecycle method
+     * Unbinds the presenter when the app is closing
+     */
     @Override
     protected void onDestroy() {
         presenter.unbind();
@@ -49,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
      * @param view View is required when calling from XML as it holds the OnClickListener
      */
     @Override
-    public void startMapsActivity(View view) { // View
+    public void startMapsActivity(View view) {
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }

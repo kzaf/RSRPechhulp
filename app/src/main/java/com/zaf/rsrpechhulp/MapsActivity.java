@@ -40,8 +40,8 @@ public class MapsActivity extends AppCompatActivity
 
     private BroadcastReceiver connectionStateReceiver = new ConnectionBroadcastReceiver(this);
 
-    MapsActivityInteractor interactor; // Model
-    private MapsActivityPresenter presenter; // Presenter
+    MapsActivityInteractor interactor;
+    private MapsActivityPresenter presenter;
 
     /**
      * Activity's lifecycle method
@@ -54,10 +54,10 @@ public class MapsActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        interactor = new MapsActivityInteractorImpl(); // Model
+        interactor = new MapsActivityInteractorImpl();
 
-        presenter = new MapsActivityPresenter(interactor); // Presenter
-        presenter.bind(this); // Presenter
+        presenter = new MapsActivityPresenter(interactor);
+        presenter.bind(this);
     }
 
     /**
@@ -110,10 +110,22 @@ public class MapsActivity extends AppCompatActivity
     }
 
     /**
+     * Activity's lifecycle method
+     * Unbinds the presenter when the app is closing
+     */
+    @Override
+    protected void onDestroy() {
+        presenter.unbind();
+        super.onDestroy();
+    }
+
+    /**
      * Once an instance of this interface is set on a MapFragment or MapView object,
      * the onMapReady(GoogleMap) method is triggered when the map is ready to be used
      * and provides a non-null instance of GoogleMap.
-     * @see <a href="https://developers.google.com/android/reference/com/google/android/gms/maps/OnMapReadyCallback">OnMapReadyCallback</a>
+     * @see <a href="https://developers.google.com/android/reference/com/google/android/gms/maps/OnMapReadyCallback">
+     *     OnMapReadyCallback</a>
+     *
      * @param googleMap The main class of the Google Maps SDK for Android
      */
     @Override
